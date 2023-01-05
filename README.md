@@ -12,7 +12,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## Collaborators
 
-- alivedd
+- [alivedd](https://github.com/AliveDD)
 
 ## Learn more
 
