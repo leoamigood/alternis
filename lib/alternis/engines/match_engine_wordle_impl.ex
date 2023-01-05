@@ -1,10 +1,9 @@
-defmodule Alternis.Engine do
+defmodule Alternis.Engines.MatchEngine.WordleImpl do
   @moduledoc """
-    Implements logic for matching a guess to the secret word
+    Implements Wordle logic for matching a guess to the secret word
   """
 
-  @type match :: list(binary | nil)
-  @spec match(String.t(), String.t()) :: {:ok, {match, match}}
+  @spec match(String.t(), String.t()) :: {:ok, {list, list}}
   def match(guess, secret) do
     {:ok, do_match(by_letter(guess), by_letter(secret))}
   end
