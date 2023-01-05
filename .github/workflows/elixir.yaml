@@ -18,6 +18,22 @@ permissions:
   contents: read
 
 jobs:
+  dialyzer:
+    name: Run Dialyzer for type checking
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the Elixir project's source code
+      - uses: actions/checkout@v2
+      # Use the erlef/setup-elixir action (https://github.com/erlef/setup-beam)
+      # to setup Erlang and Elixir
+      - name: Run Dialyzer
+        uses: erlef/setup-elixir@v1
+        with:
+          otp-version: '25.0.4'
+          elixir-version: '1.14.1'
+      # Install the dependencies and run dialyzer
+      - run: mix deps.get
+      - run: mix dialyzer
   test:
     # Set up a Postgres DB service. By default, Phoenix applications
     # use Postgres. This creates a database for running tests.
@@ -96,6 +112,9 @@ jobs:
     # Customize this step as desired.
     - name: Check Formatting
       run: mix format --check-formatted
+
+    - name: Check code quality and consistency
+      run: mix credo --strict
 
     # Step: Execute the tests.
     - name: Run tests
