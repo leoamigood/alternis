@@ -12,6 +12,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## Collaborators
 
+- [leoamigood](https://github.com/leoamigood)
 - [alivedd](https://github.com/AliveDD)
 
 ## Learn more
