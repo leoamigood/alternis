@@ -3,40 +3,41 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
-  alias Alternis.Game
-
-  @spec secret(Game.t()) :: {:ok, String.t()} | {:error, map}
-  def secret(_game) do
-    # TODO: implement secret word discovery strategy
-    {:ok, "secret"}
+  @spec match(String.t(), String.t()) :: {:ok, {list, list}} | {:error, map}
+  def match(guess, secret) do
+    case validate(guess, secret) do
+      :ok -> {:ok, do_match(by_letter(guess), by_letter(secret))}
+      {:error, errors} -> {:error, errors}
+    end
   end
 
-  @spec match(String.t(), String.t()) :: {:ok, {list, list}}
-  def match(guess, secret) do
-    {:ok, do_match(by_letter(guess), by_letter(secret))}
+  defp validate(guess, secret) do
+    case String.length(guess) == String.length(secret) do
+      true -> :ok
+      false -> {:error, %{length_match_error: guess}}
+    end
   end
 
   defp do_match(guess, secret) when is_list(guess) and is_list(secret) do
     bulls = bulls(guess, secret)
-    cows = cows(guess |> exclude(bulls), secret |> exclude(bulls))
+    cows = cows(exclude(guess, bulls), exclude(secret, bulls))
 
     {bulls, cows}
   end
 
   defp bulls(guess, secret) do
-    guess |> Enum.zip_with(secret, fn g, s -> if g == s, do: g, else: nil end)
+    Enum.zip_with(guess, secret, fn g, s -> if g == s, do: g, else: nil end)
   end
 
   defp cows(guess, secret) do
-    guess
-    |> Enum.reduce([], fn g, acc ->
-      if Enum.member?(secret -- acc, g), do: [g | acc], else: [nil | acc]
+    Enum.reduce(guess, [], fn letter, matched ->
+      if Enum.member?(secret -- matched, letter), do: [letter | matched], else: [nil | matched]
     end)
     |> Enum.reverse()
   end
 
   defp exclude(letters, extra) do
-    letters |> Enum.zip_with(extra, fn l, m -> if l == m, do: nil, else: l end)
+    Enum.zip_with(letters, extra, fn l, e -> if l == e, do: nil, else: l end)
   end
 
   defp by_letter(word) do

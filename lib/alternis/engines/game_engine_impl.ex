@@ -9,8 +9,14 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   @spec create(Game.t()) :: {:ok, Game.t()} | {:error, map}
   def create(game = %Game{secret: nil}) do
+    case inject_secret(game) do
+      {:ok, game} -> create(game)
+      {:error, errors} -> {:error, errors}
+    end
+  end
+
+  def create(game) do
     game
-    |> add_secret()
     |> Game.changeset()
     |> Repo.insert()
   end
@@ -20,9 +26,10 @@ defmodule Alternis.Engines.GameEngine.Impl do
     MatchEngine.impl().match(word, game.secret)
   end
 
-  defp add_secret(game) do
+  defp inject_secret(game) do
     case MatchEngine.impl().secret(game) do
-      {:ok, secret} -> %{game | secret: secret}
+      {:ok, secret} -> {:ok, %{game | secret: secret}}
+      {:error, errors} -> {:error, errors}
     end
   end
 end

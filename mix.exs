@@ -56,6 +56,7 @@ defmodule Alternis.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
       {:enum_type, "~> 1.1.0"}
+      {:hammox, "~> 0.7", only: [:dev, :test]}
     ]
   end
 
