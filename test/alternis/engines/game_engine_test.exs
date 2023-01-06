@@ -3,8 +3,9 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   alias Alternis.Engines.GameEngine
   alias Alternis.Engines.MatchEngine
-  alias Alternis.Game
-  alias Alternis.Game.GameStatus
+  alias Alternis.Game.GameState
+
+  import Alternis.Factory
 
   import Hammox
   setup :verify_on_exit!
@@ -12,7 +13,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "create/1 with engine generated secret" do
     setup do
       expect(MatchEngine.impl(), :secret, fn _game -> {:ok, "secret"} end)
-      {:ok, game: %Game{secret: nil}}
+      {:ok, game: build(:game, secret: nil)}
     end
 
     test "creates a game using generated secret", %{game: game} do
@@ -23,7 +24,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "create/1 with engine failing to generate secret" do
     setup do
       expect(MatchEngine.impl(), :secret, fn _game -> {:error, %{}} end)
-      {:ok, game: %Game{secret: nil}}
+      {:ok, game: build(:game, secret: nil)}
     end
 
     test "fails to create a game", %{game: game} do
@@ -33,7 +34,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with user provided secret" do
     setup do
-      {:ok, game: %Game{secret: "secret"}}
+      {:ok, game: build(:game, secret: "secret")}
     end
 
     test "creates a game with user provided secret", %{game: game} do
@@ -41,14 +42,44 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
   end
 
-  describe "guess/1" do
+  describe "guess/1 placing a guess during running game" do
     setup do
-      Mock.allow_to_call_impl(MatchEngine, :match, 2, WordleImpl)
-      {:ok, game: %Game{secret: "secret", status: GameStatus.Running}}
+      expect(MatchEngine.impl(), :match, fn _word, _secret -> {:ok, {[], []}} end)
+      {:ok, game: build(:game, secret: "secret", state: GameState.Running)}
     end
 
-    test "placing non exact guess during a running game", %{game: game} do
-      assert :ok = GameEngine.Impl.guess(game, "dialog")
+    test "succeeds", %{game: game} do
+      assert :ok = GameEngine.Impl.guess(game, "secret")
+    end
+  end
+
+  describe "guess/1 placing a guess after game has finished" do
+    setup do
+      {:ok, game: build(:game, state: GameState.Finished)}
+    end
+
+    test "fails with error", %{game: game} do
+      assert {:error, %{reason: :not_allowed}} = GameEngine.Impl.guess(game, "secret")
+    end
+  end
+
+  describe "guess/1 placing a guess after game was aborted" do
+    setup do
+      {:ok, game: build(:game, state: GameState.Aborted)}
+    end
+
+    test "fails with error", %{game: game} do
+      assert {:error, %{reason: :not_allowed}} = GameEngine.Impl.guess(game, "secret")
+    end
+  end
+
+  describe "get/1" do
+    setup do
+      {:ok, game: insert!(:game, state: GameState.Running)}
+    end
+
+    test "succeeds", %{game: game} do
+      assert game == GameEngine.Impl.get(game.id)
     end
   end
 end

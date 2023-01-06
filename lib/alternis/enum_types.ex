@@ -5,7 +5,7 @@ defmodule Alternis.EnumTypes do
     quote do
       use EnumType
 
-      defenum GameStatus do
+      defenum GameState do
         value(Created, "created")
         value(Running, "running")
         value(Finished, "finished")

@@ -9,4 +9,5 @@ defmodule Alternis.Engines.GameEngine do
   @type uuid :: Ecto.ShortUUID.uuid()
   @callback create(Game.t()) :: {:ok, uuid} | {:error, map}
   @callback guess(Game.t(), String.t()) :: :ok | {:error, map}
+  @callback get(uuid) :: {:ok, Game.t()} | {:error, map}
 end
