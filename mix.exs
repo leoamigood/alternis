@@ -57,6 +57,7 @@ defmodule Alternis.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
       {:enum_type, "~> 1.1.0"}
       {:hammox, "~> 0.7", only: [:dev, :test]}
+      {:ecto_shortuuid, "~> 0.1"}
     ]
   end
 

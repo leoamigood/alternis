@@ -8,10 +8,12 @@ defmodule Alternis.Game do
 
   @type t :: %__MODULE__{}
 
+  @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
+
   schema "games" do
     field :secret, :string
     field :source, :string
-    field :state, GameStatus, default: GameStatus.default()
+    field :status, GameStatus, default: GameStatus.default()
 
     timestamps()
   end
@@ -19,7 +21,7 @@ defmodule Alternis.Game do
   def changeset(schema) do
     schema
     |> change()
-    |> validate_required([:secret, :state])
-    |> GameStatus.validate(:state)
+    |> validate_required([:secret, :status])
+    |> GameStatus.validate(:status)
   end
 end

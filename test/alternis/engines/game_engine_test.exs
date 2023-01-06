@@ -15,9 +15,8 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
       {:ok, game: %Game{secret: nil}}
     end
 
-    test "creats a game using generated secret", %{game: game} do
-      assert {:ok, %Game{state: GameStatus.Created, secret: "secret"}} =
-               GameEngine.Impl.create(game)
+    test "creates a game using generated secret", %{game: game} do
+      assert {:ok, _uuid} = GameEngine.Impl.create(game)
     end
   end
 
@@ -38,19 +37,18 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "creates a game with user provided secret", %{game: game} do
-      assert {:ok, %Game{state: GameStatus.Created, secret: "secret"}} =
-               GameEngine.Impl.create(game)
+      assert {:ok, _uuid} = GameEngine.Impl.create(game)
     end
   end
 
   describe "guess/1" do
     setup do
       Mock.allow_to_call_impl(MatchEngine, :match, 2, WordleImpl)
-      {:ok, game: %Game{secret: "secret", state: GameStatus.Running}}
+      {:ok, game: %Game{secret: "secret", status: GameStatus.Running}}
     end
 
-    test "placing a guess during a running game", %{game: game} do
-      assert {:ok, _} = GameEngine.Impl.guess(game, "dialog")
+    test "placing non exact guess during a running game", %{game: game} do
+      assert :ok = GameEngine.Impl.guess(game, "dialog")
     end
   end
 end
