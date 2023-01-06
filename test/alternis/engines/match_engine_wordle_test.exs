@@ -3,7 +3,7 @@ defmodule Alternis.Engines.MatchEngine.WordleImplTest do
 
   alias Alternis.Engines.MatchEngine
 
-  describe "match engine" do
+  describe "match/2" do
     test "no matching guess to secret word" do
       assert {:ok, {[nil, nil, nil, nil, nil, nil], [nil, nil, nil, nil, nil, nil]}} =
                MatchEngine.impl().match("dialog", "secret")
