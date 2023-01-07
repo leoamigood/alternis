@@ -1,12 +1,10 @@
 defmodule Alternis.Game do
-  use Ecto.Schema
+  @moduledoc "Structure contains game lifecycle properties"
+
+  use Alternis.App, :domain_model
   use Alternis.EnumTypes
 
   import Ecto.Changeset
-
-  @moduledoc "Structure contains game lifecycle properties"
-
-  @type t :: %__MODULE__{}
 
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 

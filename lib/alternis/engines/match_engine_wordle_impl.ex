@@ -3,20 +3,20 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
-  alias Alternis.Engines.MatchEngine
-
-  @spec match(String.t(), String.t()) :: {:ok, MatchEngine.bulls_and_cows()} | {:error, map}
+  @spec match(String.t(), String.t()) :: {list, list}
   def match(guess, secret) do
-    case validate(guess, secret) do
-      :ok -> {:ok, do_match(by_letter(guess), by_letter(secret))}
-      {:error, errors} -> {:error, errors}
-    end
+    validate!(guess, secret)
+    do_match(by_letter(guess), by_letter(secret))
   end
 
-  defp validate(guess, secret) do
+  defp validate!(guess, secret) do
     case String.length(guess) == String.length(secret) do
-      true -> :ok
-      false -> {:error, %{length_match_error: guess}}
+      true ->
+        :ok
+
+      false ->
+        raise RuntimeError,
+              "unable to match guess '#{guess}' to secret word '#{secret}' - length mismatch"
     end
   end
 
@@ -24,11 +24,19 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     bulls = bulls(guess, secret)
     cows = cows(exclude(guess, bulls), exclude(secret, bulls))
 
-    {bulls, cows}
+    {bulls |> to_positions, cows |> to_positions}
   end
 
   defp bulls(guess, secret) do
     Enum.zip_with(guess, secret, fn g, s -> if g == s, do: g, else: nil end)
+  end
+
+  defp to_positions(list) do
+    list
+    |> Enum.with_index(1)
+    |> Enum.reject(fn {e, _} -> is_nil(e) end)
+    |> Enum.unzip()
+    |> elem(1)
   end
 
   defp cows(guess, secret) do

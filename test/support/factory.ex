@@ -10,6 +10,10 @@ defmodule Alternis.Factory do
     %Alternis.Game{secret: "secret", state: GameState.Created}
   end
 
+  def build(:guess) do
+    %Alternis.Guess{word: "guess"}
+  end
+
   # Convenience API
 
   def build(factory_name, attributes) do
