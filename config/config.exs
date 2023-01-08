@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+config :alternis, match_engine: Alternis.Engines.MatchEngine.WordleImpl
+
 config :alternis,
   ecto_repos: [Alternis.Repo]
 
