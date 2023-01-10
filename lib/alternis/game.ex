@@ -12,7 +12,7 @@ defmodule Alternis.Game do
 
   schema "games" do
     field :secret, :string
-    field :source, :string
+    field :source, GameSource, default: GameSource.default()
     field :state, GameState, default: GameState.default()
 
     timestamps()
@@ -27,5 +27,6 @@ defmodule Alternis.Game do
     |> change()
     |> validate_required([:secret, :state])
     |> GameState.validate(:state)
+    |> GameSource.validate(:source)
   end
 end

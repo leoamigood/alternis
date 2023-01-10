@@ -13,6 +13,13 @@ defmodule Alternis.EnumTypes do
 
         default(Created)
       end
+
+      defenum GameSource do
+        value(Web, "web")
+        value(Telegram, "telegram")
+
+        default(Web)
+      end
     end
   end
 end
