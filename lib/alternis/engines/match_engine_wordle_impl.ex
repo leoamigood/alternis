@@ -22,7 +22,7 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
 
   defp do_match(guess, secret) when is_list(guess) and is_list(secret) do
     bulls = bulls(guess, secret)
-    cows = cows(exclude(guess, bulls), exclude(secret, bulls))
+    cows = cows(guess |> exclude(bulls), secret |> exclude(bulls))
 
     {bulls |> to_positions, cows |> to_positions}
   end

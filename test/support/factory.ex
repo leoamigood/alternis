@@ -6,6 +6,10 @@ defmodule Alternis.Factory do
 
   # Factories
 
+  def build(:game_settings) do
+    %Alternis.GameSettings{secret: "secret"}
+  end
+
   def build(:game) do
     %Alternis.Game{secret: "secret", state: GameState.Created}
   end

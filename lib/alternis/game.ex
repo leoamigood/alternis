@@ -1,10 +1,12 @@
 defmodule Alternis.Game do
-  @moduledoc "Structure contains game lifecycle properties"
+  @moduledoc "Domain model for game lifecycle"
 
   use Alternis.App, :domain_model
   use Alternis.EnumTypes
 
   import Ecto.Changeset
+
+  alias Alternis.GameSettings
 
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
@@ -14,6 +16,10 @@ defmodule Alternis.Game do
     field :state, GameState, default: GameState.default()
 
     timestamps()
+  end
+
+  def setup(game_setup = %GameSettings{}) do
+    %__MODULE__{secret: game_setup.secret}
   end
 
   def changeset(schema) do

@@ -14,11 +14,11 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "create/1 with engine generated secret" do
     setup do
       expect(MatchEngine.impl(), :secret, fn _game -> "secret" end)
-      {:ok, game: build(:game, secret: nil)}
+      {:ok, settings: build(:game_settings, secret: nil)}
     end
 
-    test "creates a game using generated secret", %{game: game} do
-      assert {:ok, %Game{id: uuid}} = GameEngine.Impl.create(game)
+    test "creates a game using generated secret", %{settings: settings} do
+      assert {:ok, %Game{id: uuid}} = GameEngine.Impl.create(settings)
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
     end
   end
@@ -26,21 +26,21 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "create/1 with engine failing to generate secret" do
     setup do
       expect(MatchEngine.impl(), :secret, fn _game -> raise "failed to generate secret" end)
-      {:ok, game: build(:game, secret: nil)}
+      {:ok, settings: build(:game_settings, secret: nil)}
     end
 
-    test "fails to create a game", %{game: game} do
-      assert_raise RuntimeError, fn -> GameEngine.Impl.create(game) end
+    test "fails to create a game", %{settings: settings} do
+      assert_raise RuntimeError, fn -> GameEngine.Impl.create(settings) end
     end
   end
 
   describe "create/1 with user provided secret" do
     setup do
-      {:ok, game: build(:game, secret: "secret")}
+      {:ok, settings: build(:game_settings, secret: "secret")}
     end
 
-    test "creates a game with user provided secret", %{game: game} do
-      assert {:ok, %Game{id: uuid}} = GameEngine.Impl.create(game)
+    test "creates a game with user provided secret", %{settings: settings} do
+      assert {:ok, %Game{id: uuid}} = GameEngine.Impl.create(settings)
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
     end
   end

@@ -6,20 +6,24 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.Engines.MatchEngine
   alias Alternis.Game
   alias Alternis.Game.GameState
+  alias Alternis.GameSettings
   alias Alternis.Guess
   alias Alternis.Repo
 
-  @spec create(Game.t()) :: Game.t()
-  def create(game = %Game{secret: nil}) do
-    game |> inject_secret() |> create
+  @spec create(GameSettings.t()) :: Game.t()
+  def create(settings = %GameSettings{secret: nil}) do
+    settings |> inject_secret() |> create
   end
 
-  def create(game) do
-    Game.changeset(game) |> Repo.insert()
+  def create(settings = %GameSettings{}) do
+    settings
+    |> Game.setup()
+    |> Game.changeset()
+    |> Repo.insert()
   end
 
-  defp inject_secret(game) do
-    %{game | secret: MatchEngine.impl().secret(game)}
+  defp inject_secret(settings = %GameSettings{}) do
+    %{settings | secret: MatchEngine.impl().secret(settings)}
   end
 
   @spec guess(Game.t(), String.t()) :: {:ok, Guess.t()} | {:error, map}
