@@ -5,6 +5,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   alias Alternis.Engines.MatchEngine
   alias Alternis.Game
   alias Alternis.Game.GameState
+  alias Alternis.Guess
 
   import Alternis.Factory
 
@@ -48,22 +49,26 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "guess/1 placing a guess during running game" do
     setup do
       expect(MatchEngine.impl(), :match, fn _word, _secret -> {[], []} end)
-      {:ok, game: build(:game, secret: "secret", state: GameState.Running)}
+      {:ok, game: insert(:game, secret: "secret", state: GameState.Running)}
     end
 
-    test "succeeds", %{game: game} do
+    test "creates guess for game and returns guess id", %{game: game = %Game{id: game_id}} do
       assert {:ok, %Guess{id: uuid}} = GameEngine.Impl.guess(game, "secret")
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
+
+      assert %Guess{id: ^uuid, game_id: ^game_id} = Alternis.Repo.get(Guess, uuid)
     end
   end
 
   describe "guess/1 placing a guess after game has finished" do
     setup do
-      {:ok, game: build(:game, state: GameState.Finished)}
+      {:ok, game: insert(:game, state: GameState.Finished)}
     end
 
-    test "fails with error", %{game: game} do
+    test "fails with error without creating guess", %{game: game} do
       assert {:error, %{reason: :action_in_state_error}} = GameEngine.Impl.guess(game, "secret")
+
+      assert 0 == Alternis.Repo.aggregate(Guess, :count, :id)
     end
   end
 
@@ -72,18 +77,29 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
       {:ok, game: build(:game, state: GameState.Aborted)}
     end
 
-    test "fails with error", %{game: game} do
+    test "fails with error without creating guess", %{game: game} do
       assert {:error, %{reason: :action_in_state_error}} = GameEngine.Impl.guess(game, "secret")
+
+      assert 0 == Alternis.Repo.aggregate(Guess, :count, :id)
     end
   end
 
   describe "get/1" do
     setup do
-      {:ok, game: insert!(:game, state: GameState.Running)}
+      {:ok, game: insert(:game, guesses: [])}
     end
 
-    test "succeeds", %{game: game} do
+    test "succeeds without guesses", %{game: game} do
       assert game == GameEngine.Impl.get(%Game{}, game.id)
+    end
+
+    test "succeeds with guesses", %{game: game} do
+      insert_list(3, :guess, %{game: game})
+
+      loaded = GameEngine.Impl.get(%Game{}, game.id)
+
+      assert game.id == loaded.id
+      assert 3 = length(loaded.guesses)
     end
 
     test "not found" do

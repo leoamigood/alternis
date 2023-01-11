@@ -1,30 +1,19 @@
 defmodule Alternis.Factory do
   @moduledoc false
 
+  use ExMachina.Ecto, repo: Alternis.Repo
+
   alias Alternis.Game.GameState
-  alias Alternis.Repo
 
-  # Factories
-
-  def build(:game_settings) do
+  def game_settings_factory do
     %Alternis.GameSettings{secret: "secret"}
   end
 
-  def build(:game) do
+  def game_factory do
     %Alternis.Game{secret: "secret", state: GameState.Created}
   end
 
-  def build(:guess) do
+  def guess_factory do
     %Alternis.Guess{word: "guess"}
-  end
-
-  # Convenience API
-
-  def build(factory_name, attributes) do
-    factory_name |> build() |> struct!(attributes)
-  end
-
-  def insert!(factory_name, attributes \\ []) do
-    factory_name |> build(attributes) |> Repo.insert!()
   end
 end

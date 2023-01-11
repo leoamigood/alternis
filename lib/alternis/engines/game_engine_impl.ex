@@ -69,6 +69,6 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   @spec get(Game.t(), Ecto.ShortUUID) :: Game.t() | nil
   def get(%Game{}, id) do
-    Repo.get(Game, id)
+    Repo.get(Game, id) |> Repo.preload(:guesses)
   end
 end

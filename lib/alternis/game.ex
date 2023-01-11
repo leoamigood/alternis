@@ -11,6 +11,8 @@ defmodule Alternis.Game do
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
   schema "games" do
+    has_many :guesses, Alternis.Guess
+
     field :secret, :string
     field :source, GameSource, default: GameSource.default()
     field :state, GameState, default: GameState.default()
