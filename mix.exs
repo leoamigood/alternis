@@ -11,6 +11,7 @@ defmodule Alternis.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      test_coverage: [ignore_modules: []],
       dialyzer: [
         plt_add_apps: [:mix, :ex_unit],
         check_plt: true

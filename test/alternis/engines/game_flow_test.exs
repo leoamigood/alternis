@@ -24,6 +24,12 @@ defmodule Alternis.Engines.GameFlow.ImplTest do
       {:ok, game: insert(:game, state: GameState.Created)}
     end
 
+    test "updates game state to running", %{game: game = %Game{id: game_id}} do
+      GameFlow.Impl.execute(game, GuessAction, "dialog")
+
+      assert %Game{id: ^game_id, state: GameState.Running} = Alternis.Repo.get(Game, game_id)
+    end
+
     test "updates game state to finished", %{game: game = %Game{id: game_id}} do
       GameFlow.Impl.execute(game, GuessAction, "secret")
 
