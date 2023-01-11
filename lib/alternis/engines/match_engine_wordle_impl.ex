@@ -3,6 +3,8 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
+  alias Alternis.Guess
+
   @spec match(String.t(), String.t()) :: {list, list}
   def match(guess, secret) do
     validate!(guess, secret)
@@ -52,5 +54,10 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
 
   defp by_letter(word) do
     String.split(word, "", trim: true)
+  end
+
+  @spec exact?(Guess.t()) :: boolean
+  def exact?(guess = %Guess{}) do
+    String.length(guess.word) == length(guess.bulls)
   end
 end

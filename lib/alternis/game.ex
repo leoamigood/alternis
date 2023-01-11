@@ -24,9 +24,9 @@ defmodule Alternis.Game do
     %__MODULE__{secret: game_setup.secret}
   end
 
-  def changeset(schema) do
+  def changeset(schema, changes \\ %{}) do
     schema
-    |> change()
+    |> change(changes)
     |> validate_required([:secret, :state])
     |> GameState.validate(:state)
     |> GameSource.validate(:source)

@@ -1,3 +1,4 @@
+Hammox.defmock(Alternis.Engines.GameFlow.Mock, for: Alternis.Engines.GameFlow)
 Hammox.defmock(Alternis.Engines.GameEngine.Mock, for: Alternis.Engines.GameEngine)
 Hammox.defmock(Alternis.Engines.MatchEngine.Mock, for: Alternis.Engines.MatchEngine)
 
