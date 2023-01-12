@@ -1,6 +1,6 @@
 defmodule Alternis.Engines.GameEngine.Impl do
   @moduledoc """
-    Implements logic for game actions
+    Implements logic for game actions and life cycle
   """
 
   alias Alternis.Engines.MatchEngine
@@ -10,74 +10,81 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.Guess
   alias Alternis.Repo
 
-  @spec create(GameSettings.t()) :: Game.t()
+  @spec create(GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
   def create(settings = %GameSettings{secret: nil}) do
     settings |> inject_secret() |> create
   end
 
   def create(settings = %GameSettings{}) do
-    settings
-    |> Game.setup()
-    |> Game.changeset()
-    |> Repo.insert()
+    %Game{id: id} =
+      settings
+      |> Game.configure()
+      |> Game.changeset()
+      |> Repo.insert!()
+
+    {:ok, id}
   end
 
   defp inject_secret(settings = %GameSettings{}) do
     %{settings | secret: MatchEngine.impl().secret(settings)}
   end
 
-  @spec guess(Game.t(), String.t()) :: {:ok, Guess.t()} | {:error, map}
-  def guess(game, word) do
-    case validate(game) do
-      :ok ->
-        match(game, word)
-        |> build_guess
-        |> associate(game)
-        |> Repo.insert()
+  @spec guess(Game.id(), String.t()) :: {:ok, Guess.id()} | {:error, map}
+  def guess(game_id, word) do
+    case Repo.get(Game, game_id) do
+      nil ->
+        not_found_error(Game, game_id)
 
-      {:error, errors} ->
-        {:error, errors}
+      game ->
+        case Game.validate_state(game) do
+          :ok -> do_guess(game, word)
+          {:error, errors} -> {:error, errors}
+        end
     end
   end
 
-  defp validate(game) do
-    case in_progress?(game) do
-      true -> :ok
-      false -> {:error, %{reason: :action_in_state_error, game: game}}
+  defp do_guess(game, word) do
+    with guess <- match(game, word) do
+      %Guess{id: id} = Repo.insert!(guess)
+
+      case MatchEngine.impl().exact?(guess) do
+        true -> Game.update_state!(game, GameState.Finished)
+        false -> Game.update_state!(game, GameState.Running)
+      end
+
+      {:ok, id}
     end
   end
 
-  defp in_progress?(game) do
-    Enum.member?([GameState.Created, GameState.Running], game.state)
+  defp match(game, word) do
+    {bulls, cows} = MatchEngine.impl().match(word, game.secret)
+    %Guess{game: game, word: word, bulls: bulls, cows: cows}
   end
 
-  defp match(game, guess) do
-    {guess, MatchEngine.impl().match(guess, game.secret)}
-  end
-
-  defp build_guess({word, {bulls, cows}}) do
-    %Guess{word: word, bulls: bulls, cows: cows}
-  end
-
-  defp associate(guess, game) do
-    %Guess{guess | game: game}
-  end
-
-  @spec get(Game.t(), Ecto.ShortUUID) :: Game.t() | nil
-  def get(%Game{}, id) do
+  @spec get(Game.id()) :: Game.t() | nil
+  def get(id) do
     Repo.get(Game, id) |> Repo.preload(:guesses)
   end
 
-  @spec update_state(GameState.t(), Game.t()) :: {:ok, Game.t()} | {:error, map}
-  def update_state(state, game) do
-    case validate(game) do
-      :ok ->
-        game
-        |> Game.changeset(%{state: state})
-        |> Repo.update()
+  @spec abort(Game.id()) :: :ok | {:error, map}
+  def abort(game_id) do
+    case Repo.get(Game, game_id) do
+      nil ->
+        not_found_error(Game, game_id)
 
-      {:error, errors} ->
-        {:error, errors}
+      game ->
+        case Game.validate_state(game) do
+          :ok ->
+            Game.update_state!(game, GameState.Aborted)
+            :ok
+
+          {:error, errors} ->
+            {:error, errors}
+        end
     end
+  end
+
+  defp not_found_error(schema, game_id) do
+    {:error, %{reason: :not_found, schema: schema, id: game_id}}
   end
 end

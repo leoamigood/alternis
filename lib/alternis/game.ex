@@ -7,7 +7,9 @@ defmodule Alternis.Game do
   import Ecto.Changeset
 
   alias Alternis.GameSettings
+  alias Alternis.Repo
 
+  @type id :: Ecto.ShortUUID
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
   schema "games" do
@@ -20,15 +22,32 @@ defmodule Alternis.Game do
     timestamps()
   end
 
-  def setup(game_setup = %GameSettings{}) do
-    %__MODULE__{secret: game_setup.secret}
-  end
-
   def changeset(schema, changes \\ %{}) do
     schema
-    |> change(changes)
+    |> cast(changes, [:secret, :state])
     |> validate_required([:secret, :state])
     |> GameState.validate(:state)
     |> GameSource.validate(:source)
+  end
+
+  def configure(settings = %GameSettings{}) do
+    %__MODULE__{secret: settings.secret}
+  end
+
+  def validate_state(game) do
+    case in_progress?(game) do
+      true -> :ok
+      false -> {:error, %{reason: :action_in_state_error, game: game}}
+    end
+  end
+
+  def in_progress?(game) do
+    Enum.member?([GameState.Created, GameState.Running], game.state)
+  end
+
+  def update_state!(game, state) do
+    game
+    |> changeset(%{state: state})
+    |> Repo.update!()
   end
 end

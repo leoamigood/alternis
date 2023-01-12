@@ -4,11 +4,17 @@ defmodule Alternis.GameTest do
   alias Alternis.Game
   alias Alternis.Game.GameState
 
-  setup do
-    {:ok, game: %Game{secret: "secret"}}
+  import Alternis.Factory
+
+  test "creates game with game state created" do
+    assert %Game{secret: "secret", state: GameState.Created} = Repo.insert!(build(:game))
   end
 
-  test "creates game with game state created", %{game: game} do
-    assert %Game{secret: "secret", state: GameState.Created} = Repo.insert!(game)
+  test "game in progress states" do
+    assert Game.in_progress?(build(:game, state: GameState.Created))
+    assert Game.in_progress?(build(:game, state: GameState.Running))
+
+    refute Game.in_progress?(build(:game, state: GameState.Finished))
+    refute Game.in_progress?(build(:game, state: GameState.Aborted))
   end
 end

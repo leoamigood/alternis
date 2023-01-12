@@ -6,6 +6,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   alias Alternis.Game
   alias Alternis.Game.GameState
   alias Alternis.Guess
+  alias Alternis.Repo
 
   import Alternis.Factory
 
@@ -19,9 +20,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "creates game using generated secret", %{settings: settings} do
-      game = GameEngine.Impl.create(settings)
-
-      assert {:ok, %Game{id: uuid}} = game
+      assert {:ok, uuid} = GameEngine.Impl.create(settings)
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
     end
   end
@@ -43,53 +42,65 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "creates a game with provided secret", %{settings: settings} do
-      game = GameEngine.Impl.create(settings)
-
-      assert {:ok, %Game{id: uuid}} = game
+      assert {:ok, uuid} = GameEngine.Impl.create(settings)
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
     end
   end
 
-  describe "guess/1 placing a guess during running game" do
+  test "guess/2 fails error when game not found" do
+    assert {:error, %{reason: :not_found, schema: Game}} =
+             GameEngine.Impl.guess(Ecto.ShortUUID.generate(), "secret")
+  end
+
+  describe "guess/2 placing a guess during game in progress" do
     setup do
-      expect(MatchEngine.impl(), :match, fn _word, _secret -> {[], []} end)
+      Mock.allow_to_call_impl(MatchEngine, :match, 2, WordleImpl)
+      Mock.allow_to_call_impl(MatchEngine, :exact?, 1, WordleImpl)
 
-      {:ok, game: insert(:game, state: GameState.Created)}
+      {:ok, game: insert(:game, secret: "secret", state: GameState.Created)}
     end
 
-    test "creates a guess for game and returns guess id", %{game: game = %Game{id: game_id}} do
-      guess = GameEngine.Impl.guess(game, "guess")
-
-      assert {:ok, %Guess{id: uuid}} = guess
+    test "creates a guess for game and returns id", %{game: %Game{id: game_id}} do
+      assert {:ok, uuid} = GameEngine.Impl.guess(game_id, "dialog")
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
 
-      assert %Guess{id: ^uuid, game_id: ^game_id} = Alternis.Repo.get(Guess, uuid)
+      assert 1 == Repo.aggregate(Guess, :count, :id)
+    end
+
+    test "changes game state to running on non exact guess", %{game: %Game{id: game_id}} do
+      assert {:ok, _} = GameEngine.Impl.guess(game_id, "dialog")
+      assert %Game{state: GameState.Running} = Repo.get(Game, game_id)
+    end
+
+    test "changes game state to finished on exact guess", %{game: %Game{id: game_id}} do
+      assert {:ok, _} = GameEngine.Impl.guess(game_id, "secret")
+      assert %Game{state: GameState.Finished} = Repo.get(Game, game_id)
     end
   end
 
-  describe "guess/1 placing a guess after game has finished" do
+  describe "guess/2 placing a guess after game has finished" do
     setup do
       {:ok, game: insert(:game, state: GameState.Finished)}
     end
 
-    test "fails with error without creating a guess", %{game: game} do
-      guess = GameEngine.Impl.guess(game, "secret")
+    test "fails with error without creating a guess", %{game: game = %Game{id: game_id}} do
+      errors = GameEngine.Impl.guess(game_id, "secret")
 
-      assert {:error, %{reason: :action_in_state_error, game: ^game}} = guess
-      assert 0 == Alternis.Repo.aggregate(Guess, :count, :id)
+      assert {:error, %{reason: :action_in_state_error, game: ^game}} = errors
+      assert 0 == Repo.aggregate(Guess, :count, :id)
     end
   end
 
-  describe "guess/1 placing a guess after game was aborted" do
+  describe "guess/2 placing a guess after game was aborted" do
     setup do
-      {:ok, game: build(:game, state: GameState.Aborted)}
+      {:ok, game: insert(:game, state: GameState.Aborted)}
     end
 
-    test "fails with error without creating a guess", %{game: game} do
-      guess = GameEngine.Impl.guess(game, "secret")
+    test "fails with error without creating a guess", %{game: game = %Game{id: game_id}} do
+      errors = GameEngine.Impl.guess(game_id, "secret")
 
-      assert {:error, %{reason: :action_in_state_error, game: ^game}} = guess
-      assert 0 == Alternis.Repo.aggregate(Guess, :count, :id)
+      assert {:error, %{reason: :action_in_state_error, game: ^game}} = errors
+      assert 0 == Repo.aggregate(Guess, :count, :id)
     end
   end
 
@@ -99,44 +110,47 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "succeeds for a game without guesses", %{game: game} do
-      assert game == GameEngine.Impl.get(%Game{}, game.id)
+      assert game == GameEngine.Impl.get(game.id)
     end
 
     test "succeeds for a game with guesses", %{game: game} do
       insert_list(3, :guess, %{game: game})
 
-      loaded = GameEngine.Impl.get(%Game{}, game.id)
+      loaded = GameEngine.Impl.get(game.id)
 
       assert game.id == loaded.id
-      assert 3 = length(loaded.guesses)
+      assert 3 == length(loaded.guesses)
     end
 
     test "returns nil when a game not found" do
-      assert nil == GameEngine.Impl.get(%Game{}, Ecto.ShortUUID.generate())
+      assert nil == GameEngine.Impl.get(Ecto.ShortUUID.generate())
     end
   end
 
-  describe "update_state/1 with game in progress" do
+  test "abort/1 fails with error when game not found" do
+    assert {:error, %{reason: :not_found, schema: Game}} =
+             GameEngine.Impl.guess(Ecto.ShortUUID.generate(), "secret")
+  end
+
+  describe "abort/1 when game is in progress" do
     setup do
       {:ok, game: insert(:game, state: GameState.Created)}
     end
 
-    test "updates game state to finished", %{game: game = %Game{id: uuid}} do
-      GameEngine.Impl.update_state(GameState.Finished, game)
-
-      assert %Game{state: GameState.Finished} = GameEngine.Impl.get(%Game{}, uuid)
+    test "changes state to aborted", %{game: %Game{id: game_id}} do
+      assert :ok == GameEngine.Impl.abort(game_id)
+      assert %Game{state: GameState.Aborted} = Repo.get(Game, game_id)
     end
   end
 
-  describe "update_state/1 with game not in progress" do
+  describe "abort/1 when game is not in progress" do
     setup do
-      {:ok, game: insert(:game, state: GameState.Aborted)}
+      {:ok, game: insert(:game, state: GameState.Finished)}
     end
 
-    test "fails to update game state with error", %{game: game} do
-      {:error, error} = GameEngine.Impl.update_state(GameState.Running, game)
-
-      assert %{reason: :action_in_state_error, game: ^game} = error
+    test "fails with errors and does not change game state", %{game: %Game{id: game_id}} do
+      assert {:error, %{reason: :action_in_state_error}} = GameEngine.Impl.abort(game_id)
+      assert %Game{state: GameState.Finished} = Repo.get(Game, game_id)
     end
   end
 end

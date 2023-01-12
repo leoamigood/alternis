@@ -20,11 +20,6 @@ defmodule Alternis.EnumTypes do
 
         default(Web)
       end
-
-      defenum GameAction do
-        value(GuessAction, "guess")
-        value(AbortAction, "abort")
-      end
     end
   end
 end

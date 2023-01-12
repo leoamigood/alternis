@@ -7,7 +7,6 @@
 # General application configuration
 import Config
 
-config :alternis, game_flow: Alternis.Engines.GameFlow.Impl
 config :alternis, game_engine: Alternis.Engines.GameEngine.Impl
 config :alternis, match_engine: Alternis.Engines.MatchEngine.WordleImpl
 
