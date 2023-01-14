@@ -33,13 +33,11 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Enum.zip_with(guess, secret, fn g, s -> if g == s, do: g, else: nil end)
   end
 
-  defp to_positions(list) do
-    list
-    |> Enum.with_index(1)
-    |> Enum.reject(fn {e, _} -> is_nil(e) end)
-    |> Enum.unzip()
-    |> elem(1)
-  end
+  # tail recursion, for example: [nil, "a", nil, nil, "b"] into [2, 5]
+  defp to_positions(list, index \\ 1)
+  defp to_positions([nil | tail], index), do: to_positions(tail, index + 1)
+  defp to_positions([_ | tail], index), do: [index | to_positions(tail, index + 1)]
+  defp to_positions([], _), do: []
 
   defp cows(guess, secret) do
     Enum.reduce(guess, [], fn letter, matched ->
