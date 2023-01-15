@@ -61,7 +61,8 @@ defmodule Alternis.MixProject do
       {:shortuuid, "~> 2.0"},
       {:ecto_shortuuid, "~> 0.1"},
       {:ecto_psql_extras, "~> 0.6"},
-      {:ex_machina, "~> 2.7.0", only: :test}
+      {:ex_machina, "~> 2.7.0", only: :test},
+      {:appsignal_phoenix, "~> 2.0"}
     ]
   end
 
