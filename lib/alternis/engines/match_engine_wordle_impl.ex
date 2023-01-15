@@ -5,6 +5,11 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
 
   alias Alternis.Guess
 
+  @spec secret(GameSettings.t()) :: String.t()
+  def secret(settings) do
+    settings.secret
+  end
+
   @spec match(String.t(), String.t()) :: {list, list}
   def match(guess, secret) do
     validate!(guess, secret)

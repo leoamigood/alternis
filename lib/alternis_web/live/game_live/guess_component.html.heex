@@ -1,0 +1,19 @@
+<div>
+  <h2><%= @title %></h2>
+
+  <.form
+    let={f}
+    for={@changeset}
+    id="guess-form"
+    phx-target={@myself}
+    phx-submit="place">
+  
+    <%= label f, :guess %>
+    <%= text_input f, :guess %>
+    <%= error_tag f, :guess %>
+  
+    <div>
+      <%= submit "Guess", phx_disable_with: "Guessing..." %>
+    </div>
+  </.form>
+</div>

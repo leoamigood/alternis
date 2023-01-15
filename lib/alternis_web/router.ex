@@ -17,7 +17,11 @@ defmodule AlternisWeb.Router do
   scope "/", AlternisWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/games", GameLive.Index, :index
+    live "/games/new", GameLive.Index, :new
+
+    live "/games/:id", GameLive.Show, :show
+    live "/games/:id/guess", GameLive.Show, :guess
   end
 
   # Other scopes may use custom stacks.

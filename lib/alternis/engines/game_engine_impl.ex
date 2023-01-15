@@ -31,6 +31,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   @spec guess(Game.id(), String.t()) :: {:ok, Guess.id()} | {:error, map}
   def guess(game_id, word) do
+    IO.puts "Looking for game #{game_id |> ShortUUID.decode!}"
     case Repo.get(Game, game_id) do
       nil ->
         not_found_error(Game, game_id)
