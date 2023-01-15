@@ -1,11 +1,12 @@
 defmodule AlternisWeb.GameLive.GuessComponent do
   use AlternisWeb, :live_component
 
+  alias Alternis.Guess
   alias Alternis.Landing
 
   @impl true
-  def update(assigns = %{game: game}, socket) do
-    changeset = Landing.change_game(game)
+  def update(assigns, socket) do
+    changeset = Guess.change_secret()
 
     {:ok,
      socket
@@ -14,7 +15,19 @@ defmodule AlternisWeb.GameLive.GuessComponent do
   end
 
   @impl true
-  def handle_event("place", %{"game" => guess_params}, socket) do
+  def handle_event("validate", %{"guess" => guess_params}, socket) do
+    changeset =
+      socket.assigns.game.secret
+      |> Guess.change_secret(guess_params)
+      |> Map.put(:action, :guess)
+
+    {:noreply,
+     socket
+     |> assign(:changeset, changeset)}
+  end
+
+  @impl true
+  def handle_event("place", %{"guess" => guess_params}, socket) do
     guess(socket, socket.assigns.action, guess_params)
   end
 
@@ -23,7 +36,7 @@ defmodule AlternisWeb.GameLive.GuessComponent do
       {:ok, _guess_id} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Guess created successfully")
+         |> put_flash(:info, "Guess posted successfully")
          |> push_redirect(to: socket.assigns.return_to)}
 
       {:error, errors} ->

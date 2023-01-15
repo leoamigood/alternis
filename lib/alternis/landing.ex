@@ -8,10 +8,12 @@ defmodule Alternis.Landing do
 
   alias Alternis.Engines.GameEngine
   alias Alternis.Game
+  alias Alternis.Game.GameState.Created
+  alias Alternis.Game.GameState.Running
   alias Alternis.GameSettings
 
   def list_games do
-    Repo.all(Game)
+    Repo.all(from g in Game, where: g.state in [Created, Running])
   end
 
   def get_game!(id), do: GameEngine.impl().get(id)
@@ -24,7 +26,7 @@ defmodule Alternis.Landing do
   end
 
   def guess(game, guess_params) do
-    GameEngine.impl().guess(game.id, Map.get(guess_params, "guess"))
+    GameEngine.impl().guess(game.id, Map.get(guess_params, "word"))
   end
 
   @doc """

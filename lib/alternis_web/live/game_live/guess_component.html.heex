@@ -6,14 +6,15 @@
     for={@changeset}
     id="guess-form"
     phx-target={@myself}
+    phx-change="validate"
     phx-submit="place">
   
-    <%= label f, :guess %>
-    <%= text_input f, :guess %>
-    <%= error_tag f, :guess %>
+    <%= label f, "Your guess" %>
+    <%= text_input f, :word, autofocus: true %>
+    <%= error_tag f, :word %>
   
     <div>
-      <%= submit "Guess", phx_disable_with: "Guessing..." %>
+      <%= submit "Guess", phx_disable_with: "Guessing...", disabled: !@changeset.valid? %>
     </div>
   </.form>
 </div>

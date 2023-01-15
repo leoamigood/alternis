@@ -17,5 +17,5 @@ defmodule AlternisWeb.GameLive.Show do
   end
 
   defp page_title(:show), do: "Show Game"
-  defp page_title(:guess), do: "Show Guess"
+  defp page_title(:guess), do: "Enter Guess"
 end

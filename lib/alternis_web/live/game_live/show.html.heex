@@ -1,4 +1,4 @@
-<h1>Show Game</h1>
+<h1>Game History</h1>
 
 <%= if @live_action in [:guess] do %>
   <.modal return_to={Routes.game_show_path(@socket, :show, @game.id)}>
@@ -27,9 +27,9 @@
       </ul>
   </li>
 
+  <%= if @game.state != Elixir.Alternis.Game.GameState.Finished do %>
+      <span><%= live_patch "Place a guess", to: Routes.game_show_path(@socket, :guess, @game.id) %></span>
+  <% end %>
 </ul>
 
-<%= if @game.state != Elixir.Alternis.Game.GameState.Finished do %>
-    <span><%= live_patch "Guess", to: Routes.game_show_path(@socket, :guess, @game.id) %></span>
-<% end %>
 <span><%= live_redirect "Back", to: Routes.game_index_path(@socket, :index) %></span>
