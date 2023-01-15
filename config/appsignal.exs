@@ -3,5 +3,5 @@ import Config
 config :appsignal, :config,
   otp_app: :alternis,
   name: "alternis",
-  push_api_key: "88f4869b-6761-4809-98db-d5d4e9347ef8",
+  push_api_key: System.fetch_env("APPSIGNAL_PUSH_API_KEY"),
   env: Mix.env()
