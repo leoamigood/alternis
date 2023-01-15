@@ -9,7 +9,6 @@ defmodule Alternis.Landing do
   alias Alternis.Engines.GameEngine
   alias Alternis.Game
   alias Alternis.GameSettings
-  alias Alternis.Guess
 
   def list_games do
     Repo.all(Game)
@@ -26,7 +25,6 @@ defmodule Alternis.Landing do
 
   def guess(game, guess_params) do
     GameEngine.impl().guess(game.id, Map.get(guess_params, "guess"))
-    {:ok, %Guess{}}
   end
 
   @doc """
@@ -38,7 +36,7 @@ defmodule Alternis.Landing do
       %Ecto.Changeset{data: %Game{}}
 
   """
-  def change_game(%Game{} = game, attrs \\ %{}) do
+  def change_game(game = %Game{}, attrs \\ %{}) do
     Game.changeset(game, attrs)
   end
 end

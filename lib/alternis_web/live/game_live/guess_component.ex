@@ -4,7 +4,7 @@ defmodule AlternisWeb.GameLive.GuessComponent do
   alias Alternis.Landing
 
   @impl true
-  def update(%{game: game} = assigns, socket) do
+  def update(assigns = %{game: game}, socket) do
     changeset = Landing.change_game(game)
 
     {:ok,
@@ -20,14 +20,14 @@ defmodule AlternisWeb.GameLive.GuessComponent do
 
   defp guess(socket, :guess, guess_params) do
     case Landing.guess(socket.assigns.game, guess_params) do
-      {:ok, _guess} ->
+      {:ok, _guess_id} ->
         {:noreply,
          socket
          |> put_flash(:info, "Guess created successfully")
          |> push_redirect(to: socket.assigns.return_to)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+      {:error, errors} ->
+        {:noreply, assign(socket, errors: errors)}
     end
   end
 end

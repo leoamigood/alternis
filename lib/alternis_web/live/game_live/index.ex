@@ -1,8 +1,8 @@
 defmodule AlternisWeb.GameLive.Index do
   use AlternisWeb, :live_view
 
-  alias Alternis.Landing
   alias Alternis.Game
+  alias Alternis.Landing
 
   @impl true
   def mount(_params, _session, socket) do

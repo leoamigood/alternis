@@ -10,7 +10,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.Guess
   alias Alternis.Repo
 
-  @spec create(GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
+  @spec create(GameSettings.t()) :: {:ok, Game.id()}
   def create(settings = %GameSettings{secret: nil}) do
     settings |> inject_secret() |> create
   end
@@ -31,7 +31,6 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   @spec guess(Game.id(), String.t()) :: {:ok, Guess.id()} | {:error, map}
   def guess(game_id, word) do
-    IO.puts "Looking for game #{game_id |> ShortUUID.decode!}"
     case Repo.get(Game, game_id) do
       nil ->
         not_found_error(Game, game_id)

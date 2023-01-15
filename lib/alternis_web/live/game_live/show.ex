@@ -2,7 +2,6 @@ defmodule AlternisWeb.GameLive.Show do
   use AlternisWeb, :live_view
 
   alias Alternis.Landing
-  alias Alternis.Guess
 
   @impl true
   def mount(_params, _session, socket) do
@@ -15,12 +14,6 @@ defmodule AlternisWeb.GameLive.Show do
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:game, Landing.get_game!(id))}
-  end
-
-  defp apply_action(socket, :guess, _params) do
-    socket
-    |> assign(:page_title, "Guess")
-    |> assign(:guess, %Guess{})
   end
 
   defp page_title(:show), do: "Show Game"

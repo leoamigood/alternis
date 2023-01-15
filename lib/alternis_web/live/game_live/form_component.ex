@@ -4,7 +4,7 @@ defmodule AlternisWeb.GameLive.FormComponent do
   alias Alternis.Landing
 
   @impl true
-  def update(%{game: game} = assigns, socket) do
+  def update(assigns = %{game: game}, socket) do
     changeset = Landing.change_game(game)
 
     {:ok,
@@ -29,14 +29,11 @@ defmodule AlternisWeb.GameLive.FormComponent do
 
   defp save_game(socket, :new, game_params) do
     case Landing.create_game(game_params) do
-      {:ok, _game} ->
+      {:ok, _game_id} ->
         {:noreply,
          socket
          |> put_flash(:info, "Game created successfully")
          |> push_redirect(to: socket.assigns.return_to)}
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 end
