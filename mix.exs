@@ -11,6 +11,7 @@ defmodule Alternis.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      test_coverage: [ignore_modules: []],
       dialyzer: [
         plt_add_apps: [:mix, :ex_unit],
         check_plt: true
@@ -54,7 +55,11 @@ defmodule Alternis.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:enum_type, "~> 1.1.0"},
+      {:hammox, "~> 0.7", only: [:dev, :test]},
+      {:ecto_shortuuid, "~> 0.1"},
+      {:ex_machina, "~> 2.7.0", only: :test}
     ]
   end
 

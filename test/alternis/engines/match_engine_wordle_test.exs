@@ -3,45 +3,51 @@ defmodule Alternis.Engines.MatchEngine.WordleImplTest do
 
   alias Alternis.Engines.MatchEngine
 
-  describe "match engine" do
+  import Alternis.Factory
+
+  describe "match/2" do
+    test "raises exception when words length is not the same" do
+      assert_raise RuntimeError, fn -> MatchEngine.WordleImpl.match("sun", "secret") end
+      assert_raise RuntimeError, fn -> MatchEngine.WordleImpl.match("typewriter", "secret") end
+    end
+
     test "no matching guess to secret word" do
-      assert {:ok, {[nil, nil, nil, nil, nil, nil], [nil, nil, nil, nil, nil, nil]}} =
-               MatchEngine.impl().match("dialog", "secret")
+      assert {[], []} = MatchEngine.WordleImpl.match("dialog", "secret")
     end
 
     test "multiple bulls matching only" do
-      assert {:ok, {["s", "e", nil, nil, nil, nil], [nil, nil, nil, nil, nil, nil]}} =
-               MatchEngine.impl().match("season", "secret")
+      assert {[1, 2], []} = MatchEngine.WordleImpl.match("season", "secret")
     end
 
     test "multiple cows matching only" do
-      assert {:ok, {[nil, nil, nil, nil, nil, nil], ["t", nil, nil, nil, nil, "e"]}} =
-               MatchEngine.impl().match("tumble", "secret")
-
-      assert {:ok, {[nil, nil, nil, nil, nil, nil], ["r", nil, nil, "s", nil, nil]}} =
-               MatchEngine.impl().match("ransom", "secret")
-
-      assert {:ok, {[nil, nil, nil, nil, nil, nil], ["c", "r", "e", "e", nil, "s"]}} =
-               MatchEngine.impl().match("creeps", "secret")
+      assert {[], [1, 6]} = MatchEngine.WordleImpl.match("tumble", "secret")
+      assert {[], [1, 4]} = MatchEngine.WordleImpl.match("ransom", "secret")
+      assert {[], [1, 2, 3, 4, 6]} = MatchEngine.WordleImpl.match("creeps", "secret")
     end
 
     test "multiple bulls and multiple cows matching" do
-      assert {:ok, {[nil, "e", nil, nil, "e", nil], ["t", nil, nil, nil, nil, "r"]}} =
-               MatchEngine.impl().match("temper", "secret")
-
-      assert {:ok, {[nil, nil, nil, nil, "e", nil], ["e", nil, nil, nil, nil, nil]}} =
-               MatchEngine.impl().match("eleven", "secret")
-
-      assert {:ok, {[nil, nil, nil, nil, "e", nil], ["c", nil, "e", nil, nil, "r"]}} =
-               MatchEngine.impl().match("clever", "secret")
-
-      assert {:ok, {["s", nil, nil, nil, nil, nil], [nil, "t", "e", "e", "r", nil]}} =
-               MatchEngine.impl().match("steers", "secret")
+      assert {[2, 5], [1, 6]} = MatchEngine.WordleImpl.match("temper", "secret")
+      assert {[5], [1]} = MatchEngine.WordleImpl.match("eleven", "secret")
+      assert {[5], [1, 3, 6]} = MatchEngine.WordleImpl.match("clever", "secret")
+      assert {[1], [2, 3, 4, 5]} = MatchEngine.WordleImpl.match("steers", "secret")
     end
 
     test "precise guess to secret word matching" do
-      assert {:ok, {["s", "e", "c", "r", "e", "t"], [nil, nil, nil, nil, nil, nil]}} =
-               MatchEngine.impl().match("secret", "secret")
+      assert {[1, 2, 3, 4, 5, 6], []} = MatchEngine.WordleImpl.match("secret", "secret")
+    end
+  end
+
+  describe "exact?/1" do
+    test "returns true on exact guess" do
+      guess = build(:guess, word: "sun", bulls: [1, 2, 3])
+
+      assert true == MatchEngine.WordleImpl.exact?(guess)
+    end
+
+    test "returns false on non exact guess" do
+      guess = build(:guess, word: "sun", bulls: [1])
+
+      assert false == MatchEngine.WordleImpl.exact?(guess)
     end
   end
 end
