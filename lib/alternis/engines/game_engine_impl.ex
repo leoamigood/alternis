@@ -37,7 +37,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
       game ->
         case Game.validate_state(game) do
-          :ok -> do_guess(game, word)
+          :ok -> do_guess(game, word |> String.downcase())
           {:error, errors} -> {:error, errors}
         end
     end

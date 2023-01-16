@@ -31,7 +31,7 @@ defmodule Alternis.Game do
   end
 
   def configure(settings = %GameSettings{}) do
-    %__MODULE__{secret: settings.secret}
+    %__MODULE__{secret: settings.secret |> String.downcase()}
   end
 
   def validate_state(game) do
