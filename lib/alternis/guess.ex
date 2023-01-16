@@ -32,5 +32,6 @@ defmodule Alternis.Guess do
     |> cast(attrs, [:word])
     |> validate_required([:word])
     |> validate_length(:word, is: String.length(secret))
+    |> validate_format(:word, ~r/^[[:alpha:]]+$/, message: "Guess must contain only letters.")
   end
 end

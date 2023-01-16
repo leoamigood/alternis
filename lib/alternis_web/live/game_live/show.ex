@@ -3,9 +3,18 @@ defmodule AlternisWeb.GameLive.Show do
 
   alias Alternis.Landing
 
+  @topic "game"
+
   @impl true
   def mount(_params, _session, socket) do
+    AlternisWeb.Endpoint.subscribe(@topic)
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_info(%{topic: @topic, payload: game_id}, socket) do
+    game = Landing.get_game!(game_id)
+    {:noreply, assign(socket, :game, game)}
   end
 
   @impl true
