@@ -38,18 +38,33 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with a settings provided secret" do
     setup do
-      {:ok, settings: build(:game_settings, secret: "secret")}
+      {:ok, settings: build(:game_settings, secret: "Secret")}
     end
 
-    test "creates a game with provided secret", %{settings: settings} do
+    test "creates a game with normalized lowe case secret", %{settings: settings} do
       assert {:ok, uuid} = GameEngine.Impl.create(settings)
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
+
+      assert %Game{secret: "secret"} = Repo.get(Game, uuid)
     end
   end
 
   test "guess/2 fails error when game not found" do
     assert {:error, %{reason: :not_found, schema: Game}} =
              GameEngine.Impl.guess(Ecto.ShortUUID.generate(), "secret")
+  end
+
+  describe "guess/2 placing a guess" do
+    setup do
+      expect(MatchEngine.impl(), :match, fn "secret", "secret" -> {[6], []} end)
+      Mock.allow_to_call_impl(MatchEngine, :exact?, 1, WordleImpl)
+
+      {:ok, game: insert(:game, secret: "secret")}
+    end
+
+    test "invokes matching with normalized lower case word", %{game: %{id: game_id}} do
+      GameEngine.Impl.guess(game_id, "Secret")
+    end
   end
 
   describe "guess/2 placing a guess during game in progress" do
