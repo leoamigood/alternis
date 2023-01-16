@@ -3,9 +3,13 @@ defmodule Alternis.Engines.GameEngine.Impl do
     Implements logic for game actions and life cycle
   """
 
+  import Ecto.Query
+
   alias Alternis.Engines.MatchEngine
   alias Alternis.Game
   alias Alternis.Game.GameState
+  alias Alternis.Game.GameState.Created
+  alias Alternis.Game.GameState.Running
   alias Alternis.GameSettings
   alias Alternis.Guess
   alias Alternis.Repo
@@ -31,7 +35,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   @spec guess(Game.id(), String.t()) :: {:ok, Guess.id()} | {:error, map}
   def guess(game_id, word) do
-    case Repo.get(Game, game_id) do
+    case get(game_id) do
       nil ->
         not_found_error(Game, game_id)
 
@@ -62,13 +66,17 @@ defmodule Alternis.Engines.GameEngine.Impl do
   end
 
   @spec get(Game.id()) :: Game.t() | nil
-  def get(id) do
-    Repo.get(Game, id) |> Repo.preload(:guesses)
+  def get(game_id) do
+    Repo.one(
+      from g in Game,
+        where: g.id == ^game_id,
+        select_merge: %{in_progress?: g.state in [^Created, ^Running]}
+    )
   end
 
   @spec abort(Game.id()) :: :ok | {:error, map}
   def abort(game_id) do
-    case Repo.get(Game, game_id) do
+    case get(game_id) do
       nil ->
         not_found_error(Game, game_id)
 
@@ -86,5 +94,10 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   defp not_found_error(schema, game_id) do
     {:error, %{reason: :not_found, schema: schema, id: game_id}}
+  end
+
+  @spec games(list(GameState.t())) :: list(Game.t())
+  def games(states) do
+    Repo.all(from g in Game, where: g.state in ^states, order_by: :inserted_at)
   end
 end

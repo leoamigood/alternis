@@ -27,7 +27,7 @@
       </ul>
   </li>
 
-  <%= if @game.state != Elixir.Alternis.Game.GameState.Finished do %>
+  <%= if @game.in_progress? do %>
       <span><%= live_patch "Place a guess", to: Routes.game_show_path(@socket, :guess, @game.id) %></span>
   <% end %>
 </ul>

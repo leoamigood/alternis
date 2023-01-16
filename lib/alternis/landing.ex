@@ -11,12 +11,15 @@ defmodule Alternis.Landing do
   alias Alternis.Game.GameState.Created
   alias Alternis.Game.GameState.Running
   alias Alternis.GameSettings
+  alias Alternis.Guess
 
   def list_games do
-    Repo.all(from g in Game, where: g.state in [Created, Running])
+    GameEngine.impl().games([Created, Running])
   end
 
-  def get_game!(id), do: GameEngine.impl().get(id)
+  def get_game!(id) do
+    GameEngine.impl().get(id) |> Repo.preload(guesses: from(g in Guess, order_by: g.inserted_at))
+  end
 
   def create_game(game_params) do
     %GameSettings{}
