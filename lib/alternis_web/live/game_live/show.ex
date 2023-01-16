@@ -19,10 +19,16 @@ defmodule AlternisWeb.GameLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
-    {:noreply,
-     socket
-     |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:game, Landing.get_game!(id))}
+    case Landing.get_game!(id) do
+      nil ->
+        raise AlternisWeb.GameLive.GameNotFoundError
+
+      game ->
+        {:noreply,
+         socket
+         |> assign(:page_title, page_title(socket.assigns.live_action))
+         |> assign(:game, game)}
+    end
   end
 
   defp page_title(:show), do: "Show Game"
