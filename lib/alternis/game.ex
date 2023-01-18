@@ -14,6 +14,7 @@ defmodule Alternis.Game do
 
   schema "games" do
     has_many :guesses, Alternis.Guess
+    field :in_progress?, :boolean, virtual: true
 
     field :secret, :string
     field :source, GameSource, default: GameSource.default()
@@ -35,14 +36,10 @@ defmodule Alternis.Game do
   end
 
   def validate_state(game) do
-    case in_progress?(game) do
+    case game.in_progress? do
       true -> :ok
       false -> {:error, %{reason: :action_in_state_error, game: game}}
     end
-  end
-
-  def in_progress?(game) do
-    Enum.member?([GameState.Created, GameState.Running], game.state)
   end
 
   def update_state!(game, state) do

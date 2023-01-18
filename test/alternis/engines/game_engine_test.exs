@@ -98,10 +98,10 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
       {:ok, game: insert(:game, state: GameState.Finished)}
     end
 
-    test "fails with error without creating a guess", %{game: game = %Game{id: game_id}} do
+    test "fails with error without creating a guess", %{game: %Game{id: game_id}} do
       errors = GameEngine.Impl.guess(game_id, "secret")
 
-      assert {:error, %{reason: :action_in_state_error, game: ^game}} = errors
+      assert {:error, %{reason: :action_in_state_error}} = errors
       assert 0 == Repo.aggregate(Guess, :count, :id)
     end
   end
@@ -111,17 +111,17 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
       {:ok, game: insert(:game, state: GameState.Aborted)}
     end
 
-    test "fails with error without creating a guess", %{game: game = %Game{id: game_id}} do
+    test "fails with error without creating a guess", %{game: %Game{id: game_id}} do
       errors = GameEngine.Impl.guess(game_id, "secret")
 
-      assert {:error, %{reason: :action_in_state_error, game: ^game}} = errors
+      assert {:error, %{reason: :action_in_state_error}} = errors
       assert 0 == Repo.aggregate(Guess, :count, :id)
     end
   end
 
   describe "get/1" do
     setup do
-      {:ok, game: insert(:game, guesses: [])}
+      {:ok, game: insert(:game)}
     end
 
     test "succeeds for a game without guesses", %{game: game} do
@@ -131,7 +131,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     test "succeeds for a game with guesses", %{game: game} do
       insert_list(3, :guess, %{game: game})
 
-      loaded = GameEngine.Impl.get(game.id)
+      loaded = GameEngine.Impl.get(game.id) |> Repo.preload(:guesses)
 
       assert game.id == loaded.id
       assert 3 == length(loaded.guesses)

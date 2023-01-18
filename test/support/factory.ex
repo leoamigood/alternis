@@ -10,7 +10,7 @@ defmodule Alternis.Factory do
   end
 
   def game_factory do
-    %Alternis.Game{secret: "secret", state: GameState.Created}
+    %Alternis.Game{secret: "secret", state: GameState.Created, in_progress?: true}
   end
 
   def guess_factory do

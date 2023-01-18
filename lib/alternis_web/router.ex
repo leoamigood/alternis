@@ -1,6 +1,8 @@
 defmodule AlternisWeb.Router do
   use AlternisWeb, :router
 
+  import Redirect
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -14,10 +16,16 @@ defmodule AlternisWeb.Router do
     plug :accepts, ["json"]
   end
 
+  redirect("/", "/games", :permanent)
+
   scope "/", AlternisWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/games", GameLive.Index, :index
+    live "/games/new", GameLive.Index, :new
+
+    live "/games/:id", GameLive.Show, :show
+    live "/games/:id/guess", GameLive.Show, :guess
   end
 
   # Other scopes may use custom stacks.

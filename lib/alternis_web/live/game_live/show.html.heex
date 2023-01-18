@@ -1,0 +1,35 @@
+<h1>Game History</h1>
+
+<%= if @live_action in [:guess] do %>
+  <.modal return_to={Routes.game_show_path(@socket, :show, @game.id)}>
+    <.live_component
+      module={AlternisWeb.GameLive.GuessComponent}
+      id={@game.id || :guess}
+      title={@page_title}
+      action={@live_action}
+      game={@game}
+      return_to={Routes.game_show_path(@socket, :show, @game.id)}
+    />
+  </.modal>
+<% end %>
+
+<ul>
+
+  <li>
+    <strong>Secret:</strong>
+    <%= String.pad_leading("", String.length(@game.secret), "*") %>
+      <ul>
+        <%= for guess <- @game.guesses do %>
+            <li>
+              <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(guess.cows) %>
+            </li>
+        <% end %>
+      </ul>
+  </li>
+
+  <%= if @game.in_progress? do %>
+      <span><%= live_patch "Place a guess", to: Routes.game_show_path(@socket, :guess, @game.id) %></span>
+  <% end %>
+</ul>
+
+<span><%= live_redirect "Back", to: Routes.game_index_path(@socket, :index) %></span>

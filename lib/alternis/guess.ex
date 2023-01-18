@@ -6,6 +6,7 @@ defmodule Alternis.Guess do
   import Ecto.Changeset
 
   alias Alternis.Game
+  alias Alternis.Guess
 
   @type id :: Ecto.ShortUUID
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
@@ -24,5 +25,12 @@ defmodule Alternis.Guess do
     schema
     |> change()
     |> validate_required([:word, :bulls, :cows])
+  end
+
+  def change_secret(secret \\ "", attrs \\ %{}) do
+    %Guess{}
+    |> cast(attrs, [:word])
+    |> validate_required([:word])
+    |> validate_length(:word, is: String.length(secret))
   end
 end

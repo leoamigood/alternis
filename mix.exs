@@ -25,7 +25,7 @@ defmodule Alternis.MixProject do
   def application do
     [
       mod: {Alternis.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
 
@@ -58,8 +58,12 @@ defmodule Alternis.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:enum_type, "~> 1.1.0"},
       {:hammox, "~> 0.7", only: [:dev, :test]},
+      {:shortuuid, "~> 2.0"},
       {:ecto_shortuuid, "~> 0.1"},
-      {:ex_machina, "~> 2.7.0", only: :test}
+      {:ecto_psql_extras, "~> 0.6"},
+      {:ex_machina, "~> 2.7.0", only: :test},
+      {:appsignal_phoenix, "~> 2.0"},
+      {:redirect, "~> 0.4.0"}
     ]
   end
 

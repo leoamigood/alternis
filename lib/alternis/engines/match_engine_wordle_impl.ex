@@ -3,7 +3,13 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
+  alias Alternis.GameSettings
   alias Alternis.Guess
+
+  @spec secret(GameSettings.t()) :: String.t()
+  def secret(settings) do
+    settings.secret
+  end
 
   @spec match(String.t(), String.t()) :: {list, list}
   def match(guess, secret) do
