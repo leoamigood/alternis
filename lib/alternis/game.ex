@@ -19,20 +19,24 @@ defmodule Alternis.Game do
     field :secret, :string
     field :source, GameSource, default: GameSource.default()
     field :state, GameState, default: GameState.default()
+    field :expires_at, :utc_datetime, default: nil
 
     timestamps()
   end
 
   def changeset(schema, changes \\ %{}) do
     schema
-    |> cast(changes, [:secret, :state])
+    |> cast(changes, [:secret, :state, :expires_at])
     |> validate_required([:secret, :state])
     |> GameState.validate(:state)
     |> GameSource.validate(:source)
   end
 
   def configure(settings = %GameSettings{}) do
-    %__MODULE__{secret: settings.secret |> String.downcase()}
+    %__MODULE__{
+      secret: settings.secret |> String.downcase(),
+      expires_at: settings.expires_at
+    }
   end
 
   def validate_state(game) do

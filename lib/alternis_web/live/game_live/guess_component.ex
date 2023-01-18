@@ -4,8 +4,6 @@ defmodule AlternisWeb.GameLive.GuessComponent do
   alias Alternis.Guess
   alias Alternis.Landing
 
-  @topic "game"
-
   @impl true
   def update(assigns, socket) do
     changeset = Guess.change_secret()
@@ -36,12 +34,7 @@ defmodule AlternisWeb.GameLive.GuessComponent do
   defp guess(socket, :guess, guess_params) do
     case Landing.guess(socket.assigns.game, guess_params) do
       {:ok, _guess_id} ->
-        AlternisWeb.Endpoint.broadcast_from!(
-          self(),
-          @topic,
-          "guess_placed",
-          socket.assigns.game.id
-        )
+        notify_game_players(socket.assigns.game)
 
         {:noreply,
          socket
@@ -51,5 +44,9 @@ defmodule AlternisWeb.GameLive.GuessComponent do
       {:error, errors} ->
         {:noreply, assign(socket, errors: errors)}
     end
+  end
+
+  defp notify_game_players(game) do
+    AlternisWeb.Endpoint.broadcast!(game.id, "guess_placed", %{topic: game.id})
   end
 end
