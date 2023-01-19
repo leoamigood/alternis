@@ -31,8 +31,8 @@ defmodule AlternisWeb.GameLive.FormComponent do
 
   defp save_game(socket, :new, game_params) do
     case Landing.create_game(game_params) do
-      {:ok, game_id} ->
-        AlternisWeb.Endpoint.broadcast_from!(self(), @topic, "game_created", game_id)
+      {:ok, _game_id} ->
+        AlternisWeb.Endpoint.broadcast_from!(self(), @topic, "save_game", [])
 
         {:noreply,
          socket

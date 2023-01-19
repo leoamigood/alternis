@@ -14,6 +14,7 @@ defmodule Alternis.Application do
     children = [
       # Start the Ecto repository
       Alternis.Repo,
+      {Oban, Application.fetch_env!(:alternis, Oban)},
       # Start the Telemetry supervisor
       AlternisWeb.Telemetry,
       # Start the PubSub system

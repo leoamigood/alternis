@@ -18,6 +18,8 @@ config :alternis, Alternis.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
+config :alternis, Oban, testing: :inline
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :alternis, AlternisWeb.Endpoint,

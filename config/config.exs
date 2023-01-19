@@ -13,6 +13,14 @@ config :alternis, match_engine: Alternis.Engines.MatchEngine.WordleImpl
 config :alternis,
   ecto_repos: [Alternis.Repo]
 
+config :alternis, Oban,
+  repo: Alternis.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron, crontab: [{"@hourly", Alternis.ExpiredGamesWorker}]}
+  ],
+  queues: [default: 10]
+
 # Configures the endpoint
 config :alternis, AlternisWeb.Endpoint,
   url: [host: "localhost"],

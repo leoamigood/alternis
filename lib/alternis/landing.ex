@@ -1,10 +1,7 @@
 defmodule Alternis.Landing do
-  @moduledoc """
-  The Landing context.
-  """
+  @moduledoc false
 
   import Ecto.Query, warn: false
-  alias Alternis.Repo
 
   alias Alternis.Engines.GameEngine
   alias Alternis.Game
@@ -12,6 +9,7 @@ defmodule Alternis.Landing do
   alias Alternis.Game.GameState.Running
   alias Alternis.GameSettings
   alias Alternis.Guess
+  alias Alternis.Repo
 
   def list_games do
     GameEngine.impl().games([Created, Running])
@@ -22,10 +20,16 @@ defmodule Alternis.Landing do
   end
 
   def create_game(game_params) do
-    %GameSettings{}
+    %GameSettings{expires_at: datetime_in(1, :hour)}
     |> GameSettings.changeset(game_params)
     |> Ecto.Changeset.apply_changes()
     |> GameEngine.impl().create()
+  end
+
+  defp datetime_in(period, unit) do
+    DateTime.utc_now()
+    |> DateTime.truncate(:second)
+    |> DateTime.add(period, unit)
   end
 
   def guess(game, guess_params) do

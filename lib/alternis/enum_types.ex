@@ -10,6 +10,7 @@ defmodule Alternis.EnumTypes do
         value(Running, "running")
         value(Finished, "finished")
         value(Aborted, "aborted")
+        value(Expired, "expired")
 
         default(Created)
       end

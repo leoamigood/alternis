@@ -4,7 +4,7 @@ defmodule AlternisWeb.GameLive.Index do
   alias Alternis.Game
   alias Alternis.Landing
 
-  @topic "games"
+  @topic "players"
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,9 +13,8 @@ defmodule AlternisWeb.GameLive.Index do
   end
 
   @impl true
-  def handle_info(%{topic: @topic, payload: game_id}, socket) do
-    game = Alternis.Repo.get(Game, game_id)
-    {:noreply, assign(socket, :games, socket.assigns.games ++ [game])}
+  def handle_info(%{topic: @topic}, socket) do
+    {:noreply, assign(socket, :games, Landing.list_games())}
   end
 
   @impl true

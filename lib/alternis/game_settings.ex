@@ -10,6 +10,7 @@ defmodule Alternis.GameSettings do
   embedded_schema do
     field :secret, :string
     field :source, :string
+    field :expires_at, :utc_datetime, default: nil
   end
 
   def changeset(schema, changes \\ %{}) do
