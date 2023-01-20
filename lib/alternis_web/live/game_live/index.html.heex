@@ -6,6 +6,7 @@
       module={AlternisWeb.GameLive.FormComponent}
       id={@game.id || :new}
       title={@page_title}
+      button={@button}
       action={@live_action}
       game={@game}
       return_to={Routes.game_index_path(@socket, :index)}

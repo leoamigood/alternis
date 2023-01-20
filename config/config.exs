@@ -9,6 +9,7 @@ import Config
 
 config :alternis, game_engine: Alternis.Engines.GameEngine.Impl
 config :alternis, match_engine: Alternis.Engines.MatchEngine.WordleImpl
+config :alternis, dictionary_engine: Alternis.Engines.DictionaryEngine.Impl
 
 config :alternis,
   ecto_repos: [Alternis.Repo]

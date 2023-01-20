@@ -5,6 +5,7 @@ defmodule Alternis.Landing do
 
   alias Alternis.Engines.GameEngine
   alias Alternis.Game
+  alias Alternis.Game.GameLanguage.Russian
   alias Alternis.Game.GameState.Created
   alias Alternis.Game.GameState.Running
   alias Alternis.GameSettings
@@ -20,7 +21,7 @@ defmodule Alternis.Landing do
   end
 
   def create_game(game_params) do
-    %GameSettings{expires_at: datetime_in(1, :hour)}
+    %GameSettings{language: Russian, expires_at: datetime_in(1, :hour)}
     |> GameSettings.changeset(game_params)
     |> Ecto.Changeset.apply_changes()
     |> GameEngine.impl().create()

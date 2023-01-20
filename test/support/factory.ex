@@ -3,17 +3,21 @@ defmodule Alternis.Factory do
 
   use ExMachina.Ecto, repo: Alternis.Repo
 
-  alias Alternis.Game.GameState
+  alias Alternis.Game
+  alias Alternis.Game.GameLanguage.English
+  alias Alternis.Game.GameState.Created
+  alias Alternis.GameSettings
+  alias Alternis.Guess
 
   def game_settings_factory do
-    %Alternis.GameSettings{secret: "secret"}
+    %GameSettings{secret: "secret", language: English}
   end
 
   def game_factory do
-    %Alternis.Game{secret: "secret", state: GameState.Created, in_progress?: true}
+    %Game{secret: "secret", state: Created, in_progress?: true, language: English}
   end
 
   def guess_factory do
-    %Alternis.Guess{word: "guess"}
+    %Guess{word: "guess"}
   end
 end

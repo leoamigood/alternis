@@ -6,9 +6,9 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 
-config :alternis, game_flow: Alternis.Engines.GameEngine.Mock
 config :alternis, game_engine: Alternis.Engines.GameEngine.Mock
 config :alternis, match_engine: Alternis.Engines.MatchEngine.Mock
+config :alternis, dictionary_engine: Alternis.Engines.DictionaryEngine.Mock
 
 config :alternis, Alternis.Repo,
   username: "postgres",

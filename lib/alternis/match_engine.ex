@@ -9,7 +9,7 @@ defmodule Alternis.Engines.MatchEngine do
   @implementation Application.compile_env!(:alternis, :match_engine)
   def impl, do: @implementation
 
-  @callback secret(GameSettings.t()) :: String.t()
+  @callback secret(GameSettings.t()) :: String.t() | nil
   @callback match(String.t(), String.t()) :: {list, list}
   @callback exact?(Guess.t()) :: boolean
 end

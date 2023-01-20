@@ -22,7 +22,7 @@ defmodule AlternisWeb.GameLive.FormComponent do
       |> Landing.change_game(game_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply, socket |> assign(:changeset, changeset) |> assign(:button, "Save")}
   end
 
   def handle_event("save", %{"game" => game_params}, socket) do

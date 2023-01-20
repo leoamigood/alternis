@@ -1,12 +1,15 @@
 defmodule AlternisWeb.GameLive.GuessComponent do
   use AlternisWeb, :live_component
 
+  alias Alternis.Engines.DictionaryEngine
   alias Alternis.Guess
   alias Alternis.Landing
 
   @impl true
   def update(assigns, socket) do
-    changeset = Guess.change_secret()
+    changeset =
+      Guess.change_secret()
+      |> DictionaryEngine.impl().validate(:word)
 
     {:ok,
      socket
@@ -19,6 +22,7 @@ defmodule AlternisWeb.GameLive.GuessComponent do
     changeset =
       socket.assigns.game.secret
       |> Guess.change_secret(guess_params)
+      |> DictionaryEngine.impl().validate(:word)
       |> Map.put(:action, :guess)
 
     {:noreply,
