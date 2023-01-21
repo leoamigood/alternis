@@ -5,7 +5,6 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
 
   alias Alternis.Dictionary
   alias Alternis.GameSettings
-  alias Alternis.Guess
   alias Alternis.Repo
   alias Alternis.Word
 
@@ -25,7 +24,7 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     )
   end
 
-  @spec match(String.t(), String.t()) :: {list, list}
+  @spec match(String.t(), String.t()) :: {list, list, boolean}
   def match(guess, secret) do
     validate!(guess, secret)
     do_match(by_letter(guess), by_letter(secret))
@@ -46,7 +45,7 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     bulls = bulls(guess, secret)
     cows = cows(guess |> exclude(bulls), secret |> exclude(bulls))
 
-    {bulls |> to_positions, cows |> to_positions}
+    {bulls |> to_positions, cows |> to_positions, nil not in bulls}
   end
 
   defp bulls(guess, secret) do
@@ -74,10 +73,5 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
 
   defp by_letter(word) do
     String.split(word, "", trim: true)
-  end
-
-  @spec exact?(Guess.t()) :: boolean
-  def exact?(guess = %Guess{}) do
-    String.length(guess.word) == length(guess.bulls)
   end
 end

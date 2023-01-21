@@ -56,8 +56,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "guess/2 placing a guess" do
     setup do
-      expect(MatchEngine.impl(), :match, fn "secret", "secret" -> {[6], []} end)
-      Mock.allow_to_call_impl(MatchEngine, :exact?, 1, WordleImpl)
+      expect(MatchEngine.impl(), :match, fn "secret", "secret" -> {[6], [], true} end)
 
       {:ok, game: insert(:game, secret: "secret")}
     end
@@ -70,13 +69,12 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "guess/2 placing a guess during game in progress" do
     setup do
       Mock.allow_to_call_impl(MatchEngine, :match, 2, WordleImpl)
-      Mock.allow_to_call_impl(MatchEngine, :exact?, 1, WordleImpl)
 
       {:ok, game: insert(:game, secret: "secret", state: GameState.Created)}
     end
 
-    test "creates a guess for game and returns id", %{game: %Game{id: game_id}} do
-      assert {:ok, uuid} = GameEngine.Impl.guess(game_id, "dialog")
+    test "creates a guess for game", %{game: %Game{id: game_id}} do
+      assert {:ok, %Guess{id: uuid}} = GameEngine.Impl.guess(game_id, "dialog")
       assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
 
       assert 1 == Repo.aggregate(Guess, :count, :id)

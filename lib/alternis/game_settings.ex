@@ -7,7 +7,6 @@ defmodule Alternis.GameSettings do
 
   import Ecto.Changeset
 
-  alias Alternis.Engines.DictionaryEngine
   alias Alternis.Game.GameLanguage
   alias Alternis.Game.GameSource
 

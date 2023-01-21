@@ -37,16 +37,23 @@ defmodule AlternisWeb.GameLive.GuessComponent do
 
   defp guess(socket, :guess, guess_params) do
     case Landing.guess(socket.assigns.game, guess_params) do
-      {:ok, _guess_id} ->
+      {:ok, guess} ->
         notify_game_players(socket.assigns.game)
 
         {:noreply,
          socket
-         |> put_flash(:info, "Guess posted successfully")
+         |> flash_message(guess)
          |> push_redirect(to: socket.assigns.return_to)}
 
       {:error, errors} ->
         {:noreply, assign(socket, errors: errors)}
+    end
+  end
+
+  defp flash_message(socket, guess) do
+    case guess.exact? do
+      true -> put_flash(socket, :warn, "Congratulations! You guessed the secret word")
+      false -> put_flash(socket, :info, "Guess posted successfully")
     end
   end
 
