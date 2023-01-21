@@ -1,7 +1,7 @@
 defmodule AlternisWeb.GameLive.Index do
   use AlternisWeb, :live_view
 
-  alias Alternis.Game
+  alias Alternis.GameSettings
   alias Alternis.Landing
 
   @topic "players"
@@ -26,7 +26,7 @@ defmodule AlternisWeb.GameLive.Index do
     socket
     |> assign(:page_title, "New Game")
     |> assign(:button, "Auto Generate")
-    |> assign(:game, %Game{})
+    |> assign(:game_settings, %GameSettings{})
   end
 
   defp apply_action(socket, :index, _params) do

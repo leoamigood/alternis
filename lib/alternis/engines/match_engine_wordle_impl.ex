@@ -16,7 +16,6 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Repo.one(
       from w in Word,
         join: d in Dictionary,
-        on: d.id == w.dictionary_id,
         where:
           d.language == ^settings.language and
             fragment("LENGTH(lemma) > ?", 4) and fragment("LENGTH(lemma) < ?", 9),

@@ -14,9 +14,12 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.Guess
   alias Alternis.Repo
 
-  @spec create(GameSettings.t()) :: {:ok, Game.id()}
+  @spec create(GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
   def create(settings = %GameSettings{secret: nil}) do
-    settings |> inject_secret() |> create
+    case MatchEngine.impl().secret(settings) do
+      nil -> {:error, %{reason: :secret_not_found, settings: settings}}
+      secret -> create(%{settings | secret: secret})
+    end
   end
 
   def create(settings = %GameSettings{}) do
@@ -27,10 +30,6 @@ defmodule Alternis.Engines.GameEngine.Impl do
       |> Repo.insert!()
 
     {:ok, id}
-  end
-
-  defp inject_secret(settings = %GameSettings{}) do
-    %{settings | secret: MatchEngine.impl().secret(settings)}
   end
 
   @spec guess(Game.id(), String.t()) :: {:ok, Guess.id()} | {:error, map}

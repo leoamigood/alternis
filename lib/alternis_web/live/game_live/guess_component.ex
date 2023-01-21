@@ -9,7 +9,7 @@ defmodule AlternisWeb.GameLive.GuessComponent do
   def update(assigns, socket) do
     changeset =
       Guess.change_secret()
-      |> DictionaryEngine.impl().validate(:word)
+      |> DictionaryEngine.impl().validate_word(:word)
 
     {:ok,
      socket
@@ -22,7 +22,7 @@ defmodule AlternisWeb.GameLive.GuessComponent do
     changeset =
       socket.assigns.game.secret
       |> Guess.change_secret(guess_params)
-      |> DictionaryEngine.impl().validate(:word)
+      |> DictionaryEngine.impl().validate_word(:word)
       |> Map.put(:action, :guess)
 
     {:noreply,

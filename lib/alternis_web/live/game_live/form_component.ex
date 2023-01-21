@@ -1,13 +1,14 @@
 defmodule AlternisWeb.GameLive.FormComponent do
   use AlternisWeb, :live_component
 
+  alias Alternis.GameSettings
   alias Alternis.Landing
 
-  @topic "games"
+  @topic "players"
 
   @impl true
-  def update(assigns = %{game: game}, socket) do
-    changeset = Landing.change_game(game)
+  def update(assigns = %{game_settings: _}, socket) do
+    changeset = GameSettings.changeset(%GameSettings{})
 
     {:ok,
      socket
@@ -16,20 +17,21 @@ defmodule AlternisWeb.GameLive.FormComponent do
   end
 
   @impl true
-  def handle_event("validate", %{"game" => game_params}, socket) do
+  def handle_event("validate", %{"game_settings" => game_params}, socket) do
     changeset =
-      socket.assigns.game
-      |> Landing.change_game(game_params)
+      socket.assigns.game_settings
+      |> GameSettings.changeset(game_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, socket |> assign(:changeset, changeset) |> assign(:button, "Save")}
+    {:noreply,
+     socket |> assign(changeset: changeset) |> assign(:button, button_title(game_params))}
   end
 
-  def handle_event("save", %{"game" => game_params}, socket) do
-    save_game(socket, socket.assigns.action, game_params)
+  def handle_event("save", %{"game_settings" => game_params}, socket) do
+    create_game(socket, socket.assigns.action, game_params)
   end
 
-  defp save_game(socket, :new, game_params) do
+  defp create_game(socket, :new, game_params) do
     case Landing.create_game(game_params) do
       {:ok, _game_id} ->
         AlternisWeb.Endpoint.broadcast_from!(self(), @topic, "save_game", [])
@@ -38,6 +40,12 @@ defmodule AlternisWeb.GameLive.FormComponent do
          socket
          |> put_flash(:info, "Game created successfully")
          |> push_redirect(to: socket.assigns.return_to)}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, changeset: changeset |> Map.put(:action, :validate))}
     end
   end
+
+  defp button_title(%{"secret" => ""}), do: "Auto Generate"
+  defp button_title(_), do: "Start"
 end

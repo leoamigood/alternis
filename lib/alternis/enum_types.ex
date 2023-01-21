@@ -23,10 +23,11 @@ defmodule Alternis.EnumTypes do
       end
 
       defenum GameLanguage do
+        value(Unknown, "unknown")
         value(English, "english")
         value(Russian, "russian")
 
-        default(English)
+        default(Unknown)
       end
     end
   end

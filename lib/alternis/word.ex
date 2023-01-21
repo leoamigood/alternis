@@ -9,5 +9,6 @@ defmodule Alternis.Word do
     belongs_to :dictionary, Dictionary
     field :lemma, :string
     field :frequency, :float
+    field :language, :string, virtual: true
   end
 end

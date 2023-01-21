@@ -28,7 +28,7 @@ defmodule Alternis.Game do
 
   def changeset(schema, changes \\ %{}) do
     schema
-    |> cast(changes, [:secret, :state, :expires_at, :language])
+    |> change(changes)
     |> validate_required([:secret, :state, :language])
     |> GameState.validate(:state)
     |> GameSource.validate(:source)
