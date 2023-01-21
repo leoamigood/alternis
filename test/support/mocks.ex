@@ -1,5 +1,6 @@
 Hammox.defmock(Alternis.Engines.GameEngine.Mock, for: Alternis.Engines.GameEngine)
 Hammox.defmock(Alternis.Engines.MatchEngine.Mock, for: Alternis.Engines.MatchEngine)
+Hammox.defmock(Alternis.Engines.DictionaryEngine.Mock, for: Alternis.Engines.DictionaryEngine)
 
 defmodule Mock do
   @moduledoc false

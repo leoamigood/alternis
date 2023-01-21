@@ -14,9 +14,12 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.Guess
   alias Alternis.Repo
 
-  @spec create(GameSettings.t()) :: {:ok, Game.id()}
+  @spec create(GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
   def create(settings = %GameSettings{secret: nil}) do
-    settings |> inject_secret() |> create
+    case MatchEngine.impl().secret(settings) do
+      nil -> {:error, %{reason: :secret_not_found, settings: settings}}
+      secret -> create(%{settings | secret: secret})
+    end
   end
 
   def create(settings = %GameSettings{}) do
@@ -29,11 +32,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
     {:ok, id}
   end
 
-  defp inject_secret(settings = %GameSettings{}) do
-    %{settings | secret: MatchEngine.impl().secret(settings)}
-  end
-
-  @spec guess(Game.id(), String.t()) :: {:ok, Guess.id()} | {:error, map}
+  @spec guess(Game.id(), String.t()) :: {:ok, Guess.t()} | {:error, map}
   def guess(game_id, word) do
     case get(game_id) do
       nil ->
@@ -49,20 +48,20 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   defp do_guess(game, word) do
     with guess <- match(game, word) do
-      %Guess{id: id} = Repo.insert!(guess)
+      Repo.transaction(fn ->
+        case guess.exact? do
+          true -> Game.update_state!(game, GameState.Finished)
+          false -> Game.update_state!(game, GameState.Running)
+        end
 
-      case MatchEngine.impl().exact?(guess) do
-        true -> Game.update_state!(game, GameState.Finished)
-        false -> Game.update_state!(game, GameState.Running)
-      end
-
-      {:ok, id}
+        Repo.insert!(guess)
+      end)
     end
   end
 
   defp match(game, word) do
-    {bulls, cows} = MatchEngine.impl().match(word, game.secret)
-    %Guess{game: game, word: word, bulls: bulls, cows: cows}
+    {bulls, cows, exact} = MatchEngine.impl().match(word, game.secret)
+    %Guess{game: game, word: word, bulls: bulls, cows: cows, exact?: exact}
   end
 
   @spec get(Game.id()) :: Game.t() | nil

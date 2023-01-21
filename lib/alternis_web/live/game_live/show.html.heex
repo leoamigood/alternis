@@ -20,7 +20,7 @@
     <%= String.pad_leading("", String.length(@game.secret), "*") %>
       <ul>
         <%= for guess <- @game.guesses do %>
-            <li>
+            <li style={if guess.exact?, do: "color:blue"}>
               <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(guess.cows) %>
             </li>
         <% end %>

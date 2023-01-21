@@ -10,11 +10,11 @@
     phx-submit="save">
   
     <%= label f, :secret %>
-    <%= text_input f, :secret %>
+    <%= text_input f, :secret, autofocus: true %>
     <%= error_tag f, :secret %>
   
     <div>
-      <%= submit "Save", phx_disable_with: "Saving..." %>
+      <%= submit @button, phx_disable_with: "Saving..." %>
     </div>
   </.form>
 </div>

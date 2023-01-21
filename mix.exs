@@ -64,7 +64,8 @@ defmodule Alternis.MixProject do
       {:ex_machina, "~> 2.7.0", only: :test},
       {:appsignal_phoenix, "~> 2.0"},
       {:redirect, "~> 0.4.0"},
-      {:oban, "~> 2.13"}
+      {:oban, "~> 2.13"},
+      {:recase, "~> 0.5"}
     ]
   end
 

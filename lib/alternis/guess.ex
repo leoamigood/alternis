@@ -17,6 +17,7 @@ defmodule Alternis.Guess do
     field :word, :string
     field :bulls, {:array, :integer}
     field :cows, {:array, :integer}
+    field :exact?, :boolean, source: :exact
 
     timestamps()
   end

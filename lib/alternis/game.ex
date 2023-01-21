@@ -6,6 +6,7 @@ defmodule Alternis.Game do
 
   import Ecto.Changeset
 
+  alias Alternis.Game.GameLanguage
   alias Alternis.GameSettings
   alias Alternis.Repo
 
@@ -20,22 +21,25 @@ defmodule Alternis.Game do
     field :source, GameSource, default: GameSource.default()
     field :state, GameState, default: GameState.default()
     field :expires_at, :utc_datetime, default: nil
+    field :language, GameLanguage, default: GameLanguage.default()
 
     timestamps()
   end
 
   def changeset(schema, changes \\ %{}) do
     schema
-    |> cast(changes, [:secret, :state, :expires_at])
-    |> validate_required([:secret, :state])
+    |> change(changes)
+    |> validate_required([:secret, :state, :language])
     |> GameState.validate(:state)
     |> GameSource.validate(:source)
+    |> GameLanguage.validate(:language)
   end
 
   def configure(settings = %GameSettings{}) do
     %__MODULE__{
       secret: settings.secret |> String.downcase(),
-      expires_at: settings.expires_at
+      expires_at: settings.expires_at,
+      language: settings.language
     }
   end
 

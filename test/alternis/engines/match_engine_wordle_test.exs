@@ -3,8 +3,6 @@ defmodule Alternis.Engines.MatchEngine.WordleImplTest do
 
   alias Alternis.Engines.MatchEngine
 
-  import Alternis.Factory
-
   describe "match/2" do
     test "raises exception when words length is not the same" do
       assert_raise RuntimeError, fn -> MatchEngine.WordleImpl.match("sun", "secret") end
@@ -12,42 +10,28 @@ defmodule Alternis.Engines.MatchEngine.WordleImplTest do
     end
 
     test "no matching guess to secret word" do
-      assert {[], []} = MatchEngine.WordleImpl.match("dialog", "secret")
+      assert {[], [], false} = MatchEngine.WordleImpl.match("dialog", "secret")
     end
 
     test "multiple bulls matching only" do
-      assert {[1, 2], []} = MatchEngine.WordleImpl.match("season", "secret")
+      assert {[1, 2], [], false} = MatchEngine.WordleImpl.match("season", "secret")
     end
 
     test "multiple cows matching only" do
-      assert {[], [1, 6]} = MatchEngine.WordleImpl.match("tumble", "secret")
-      assert {[], [1, 4]} = MatchEngine.WordleImpl.match("ransom", "secret")
-      assert {[], [1, 2, 3, 4, 6]} = MatchEngine.WordleImpl.match("creeps", "secret")
+      assert {[], [1, 6], false} = MatchEngine.WordleImpl.match("tumble", "secret")
+      assert {[], [1, 4], false} = MatchEngine.WordleImpl.match("ransom", "secret")
+      assert {[], [1, 2, 3, 4, 6], false} = MatchEngine.WordleImpl.match("creeps", "secret")
     end
 
     test "multiple bulls and multiple cows matching" do
-      assert {[2, 5], [1, 6]} = MatchEngine.WordleImpl.match("temper", "secret")
-      assert {[5], [1]} = MatchEngine.WordleImpl.match("eleven", "secret")
-      assert {[5], [1, 3, 6]} = MatchEngine.WordleImpl.match("clever", "secret")
-      assert {[1], [2, 3, 4, 5]} = MatchEngine.WordleImpl.match("steers", "secret")
+      assert {[2, 5], [1, 6], false} = MatchEngine.WordleImpl.match("temper", "secret")
+      assert {[5], [1], false} = MatchEngine.WordleImpl.match("eleven", "secret")
+      assert {[5], [1, 3, 6], false} = MatchEngine.WordleImpl.match("clever", "secret")
+      assert {[1], [2, 3, 4, 5], false} = MatchEngine.WordleImpl.match("steers", "secret")
     end
 
     test "precise guess to secret word matching" do
-      assert {[1, 2, 3, 4, 5, 6], []} = MatchEngine.WordleImpl.match("secret", "secret")
-    end
-  end
-
-  describe "exact?/1" do
-    test "returns true on exact guess" do
-      guess = build(:guess, word: "sun", bulls: [1, 2, 3])
-
-      assert true == MatchEngine.WordleImpl.exact?(guess)
-    end
-
-    test "returns false on non exact guess" do
-      guess = build(:guess, word: "sun", bulls: [1])
-
-      assert false == MatchEngine.WordleImpl.exact?(guess)
+      assert {[1, 2, 3, 4, 5, 6], [], true} = MatchEngine.WordleImpl.match("secret", "secret")
     end
   end
 end

@@ -3,15 +3,28 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
+  alias Alternis.Dictionary
   alias Alternis.GameSettings
-  alias Alternis.Guess
+  alias Alternis.Repo
+  alias Alternis.Word
 
-  @spec secret(GameSettings.t()) :: String.t()
+  @spec secret(GameSettings.t()) :: String.t() | nil
   def secret(settings) do
-    settings.secret
+    import Ecto.Query
+
+    Repo.one(
+      from w in Word,
+        join: d in Dictionary,
+        where:
+          d.language == ^settings.language and
+            fragment("LENGTH(lemma) > ?", 4) and fragment("LENGTH(lemma) < ?", 9),
+        select: w.lemma,
+        order_by: fragment("RANDOM()"),
+        limit: 1
+    )
   end
 
-  @spec match(String.t(), String.t()) :: {list, list}
+  @spec match(String.t(), String.t()) :: {list, list, boolean}
   def match(guess, secret) do
     validate!(guess, secret)
     do_match(by_letter(guess), by_letter(secret))
@@ -32,7 +45,7 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     bulls = bulls(guess, secret)
     cows = cows(guess |> exclude(bulls), secret |> exclude(bulls))
 
-    {bulls |> to_positions, cows |> to_positions}
+    {bulls |> to_positions, cows |> to_positions, nil not in bulls}
   end
 
   defp bulls(guess, secret) do
@@ -60,10 +73,5 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
 
   defp by_letter(word) do
     String.split(word, "", trim: true)
-  end
-
-  @spec exact?(Guess.t()) :: boolean
-  def exact?(guess = %Guess{}) do
-    String.length(guess.word) == length(guess.bulls)
   end
 end

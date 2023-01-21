@@ -7,15 +7,18 @@ defmodule Alternis.GameSettings do
 
   import Ecto.Changeset
 
+  alias Alternis.Game.GameLanguage
+  alias Alternis.Game.GameSource
+
+  @primary_key false
   embedded_schema do
     field :secret, :string
-    field :source, :string
+    field :source, GameSource, default: GameSource.default()
+    field :language, GameLanguage
     field :expires_at, :utc_datetime, default: nil
   end
 
   def changeset(schema, changes \\ %{}) do
-    schema
-    |> cast(changes, [:secret])
-    |> validate_required([:secret])
+    schema |> cast(changes, [:secret])
   end
 end
