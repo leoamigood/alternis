@@ -120,6 +120,7 @@ jobs:
       run: mix test
   deploy:
       name: Deploy app
+      needs: [dialyzer, test]
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
