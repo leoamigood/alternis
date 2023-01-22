@@ -6,6 +6,8 @@ defmodule AlternisWeb.GameLive.Index do
 
   @topic "players"
 
+  def topic, do: @topic
+
   @impl true
   def mount(_params, _session, socket) do
     AlternisWeb.Endpoint.subscribe(@topic)

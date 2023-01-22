@@ -13,7 +13,7 @@ defmodule Alternis.Engines.DictionaryEngine.Impl do
     from(
       w in Word,
       join: d in Dictionary,
-      where: w.lemma == ^lemma,
+      where: w.lemma == ^String.downcase(lemma),
       select_merge: %{language: d.language},
       order_by: w.frequency,
       limit: 1

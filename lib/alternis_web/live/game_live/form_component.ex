@@ -3,8 +3,7 @@ defmodule AlternisWeb.GameLive.FormComponent do
 
   alias Alternis.GameSettings
   alias Alternis.Landing
-
-  @topic "players"
+  alias AlternisWeb.GameLive
 
   @impl true
   def update(assigns = %{game_settings: _}, socket) do
@@ -34,7 +33,7 @@ defmodule AlternisWeb.GameLive.FormComponent do
   defp create_game(socket, :new, game_params) do
     case Landing.create_game(game_params) do
       {:ok, _game_id} ->
-        AlternisWeb.Endpoint.broadcast_from!(self(), @topic, "save_game", [])
+        AlternisWeb.Endpoint.broadcast_from!(self(), GameLive.Index.topic(), "save_game", [])
 
         {:noreply,
          socket
