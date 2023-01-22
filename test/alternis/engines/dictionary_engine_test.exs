@@ -13,11 +13,8 @@ defmodule Alternis.Engines.DictionaryEngine.ImplTest do
 
   describe "find_word/1" do
     setup do
-      english = insert(:dictionary, language: English)
-      russian = insert(:dictionary, language: Russian)
-
-      insert(:word, dictionary: english, lemma: "secret")
-      insert(:word, dictionary: russian, lemma: "секрет")
+      insert(:word, dictionary: insert(:dictionary, language: English), lemma: "secret")
+      insert(:word, dictionary: insert(:dictionary, language: Russian), lemma: "секрет")
 
       :ok
     end

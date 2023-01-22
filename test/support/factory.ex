@@ -1,7 +1,7 @@
 defmodule Alternis.Factory do
-  @moduledoc false
-
   use ExMachina.Ecto, repo: Alternis.Repo
+
+  @moduledoc false
 
   alias Alternis.Dictionary
   alias Alternis.Game
