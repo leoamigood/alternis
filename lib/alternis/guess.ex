@@ -28,10 +28,10 @@ defmodule Alternis.Guess do
     |> validate_required([:word, :bulls, :cows])
   end
 
-  def change_secret(secret \\ "", attrs \\ %{}) do
+  def validate_word(word \\ "", attrs \\ %{}) do
     %Guess{}
     |> cast(attrs, [:word])
     |> validate_required([:word])
-    |> validate_length(:word, is: String.length(secret))
+    |> validate_length(:word, is: String.length(word))
   end
 end

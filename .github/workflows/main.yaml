@@ -7,11 +7,10 @@ name: Elixir CI
 on:
   push:
     branches: [ "main" ]  # adapt branch for project
-  pull_request:
-    branches: [ "main" ]  # adapt branch for project
 
 # Sets the ENV `MIX_ENV` to `test` for running tests
 env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   MIX_ENV: test
 
 permissions:
@@ -119,3 +118,10 @@ jobs:
     # Step: Execute the tests.
     - name: Run tests
       run: mix test
+  deploy:
+      name: Deploy app
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: superfly/flyctl-actions/setup-flyctl@master
+        - run: flyctl deploy -e APP_REVISION=$(git rev-parse --short HEAD) --remote-only
