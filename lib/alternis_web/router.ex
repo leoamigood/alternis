@@ -1,6 +1,7 @@
 defmodule AlternisWeb.Router do
   use AlternisWeb, :router
 
+  import AlternisWeb.UserAuth
   import Redirect
 
   pipeline :browser do
@@ -10,6 +11,7 @@ defmodule AlternisWeb.Router do
     plug :put_root_layout, {AlternisWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -22,10 +24,17 @@ defmodule AlternisWeb.Router do
     pipe_through :browser
 
     live "/games", GameLive.Index, :index
-    live "/games/new", GameLive.Index, :new
+  end
 
-    live "/games/:id", GameLive.Show, :show
-    live "/games/:id/guess", GameLive.Show, :guess
+  scope "/", AlternisWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_auth, on_mount: [{AlternisWeb.LiveAuth, :require_authenticated_user}] do
+      live "/games/new", GameLive.Index, :new
+
+      live "/games/:id", GameLive.Show, :show
+      live "/games/:id/guess", GameLive.Show, :guess
+    end
   end
 
   # Other scopes may use custom stacks.
@@ -60,5 +69,38 @@ defmodule AlternisWeb.Router do
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  ## Authentication routes
+
+  scope "/", AlternisWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    get "/users/register", UserRegistrationController, :new
+    post "/users/register", UserRegistrationController, :create
+    get "/users/log_in", UserSessionController, :new
+    post "/users/log_in", UserSessionController, :create
+    get "/users/reset_password", UserResetPasswordController, :new
+    post "/users/reset_password", UserResetPasswordController, :create
+    get "/users/reset_password/:token", UserResetPasswordController, :edit
+    put "/users/reset_password/:token", UserResetPasswordController, :update
+  end
+
+  scope "/", AlternisWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    get "/users/settings", UserSettingsController, :edit
+    put "/users/settings", UserSettingsController, :update
+    get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
+  end
+
+  scope "/", AlternisWeb do
+    pipe_through [:browser]
+
+    delete "/users/log_out", UserSessionController, :delete
+    get "/users/confirm", UserConfirmationController, :new
+    post "/users/confirm", UserConfirmationController, :create
+    get "/users/confirm/:token", UserConfirmationController, :edit
+    post "/users/confirm/:token", UserConfirmationController, :update
   end
 end

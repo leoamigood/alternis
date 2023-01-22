@@ -37,4 +37,4 @@
   </tbody>
 </table>
 
-<span><%= live_patch "New Game", to: Routes.game_index_path(@socket, :new) %></span>
+<span><%= live_redirect "New Game", to: Routes.game_index_path(@socket, :new) %></span>

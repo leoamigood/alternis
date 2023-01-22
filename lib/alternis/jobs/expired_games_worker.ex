@@ -9,9 +9,7 @@ defmodule Alternis.ExpiredGamesWorker do
   import Ecto.Query
 
   alias Alternis.Game
-  alias Alternis.Game.GameState.Created
-  alias Alternis.Game.GameState.Expired
-  alias Alternis.Game.GameState.Running
+  alias Alternis.Game.GameState.{Created, Expired, Running}
   alias Alternis.PubSub
   alias Alternis.Repo
   alias AlternisWeb.GameLive
