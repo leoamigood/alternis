@@ -7,6 +7,7 @@ defmodule Alternis.GameSettings do
 
   import Ecto.Changeset
 
+  alias Alternis.Engines.DictionaryEngine
   alias Alternis.Game.GameLanguage
   alias Alternis.Game.GameSource
 
@@ -19,6 +20,22 @@ defmodule Alternis.GameSettings do
   end
 
   def changeset(schema, changes \\ %{}) do
-    schema |> cast(changes, [:secret])
+    schema
+    |> cast(changes, [:secret, :language])
+    |> validate_required(:language)
+    |> GameLanguage.validate(:language)
+  end
+
+  def validate_in_dictionary(changeset, _field) when length(changeset.errors) > 0 do
+    changeset
+  end
+
+  def validate_in_dictionary(changeset, field) when is_atom(field) do
+    validate_change(changeset, field, fn field, secret ->
+      case DictionaryEngine.impl().find_word(secret, changeset.changes.language) do
+        nil -> [{field, "word not in dictionary"}]
+        _ -> []
+      end
+    end)
   end
 end

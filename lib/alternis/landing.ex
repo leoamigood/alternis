@@ -5,7 +5,6 @@ defmodule Alternis.Landing do
 
   alias Alternis.Engines.DictionaryEngine
   alias Alternis.Engines.GameEngine
-  alias Alternis.Game.GameLanguage.Russian
   alias Alternis.Game.GameState.Created
   alias Alternis.Game.GameState.Running
   alias Alternis.GameSettings
@@ -24,8 +23,10 @@ defmodule Alternis.Landing do
     GameEngine.impl().guess(game.id, word)
   end
 
-  def create_game(_game_settings = %{"secret" => ""}) do
-    %GameSettings{language: Russian}
+  def create_game(game_settings = %{"secret" => ""}) do
+    %GameSettings{}
+    |> GameSettings.changeset(game_settings)
+    |> Ecto.Changeset.apply_changes()
     |> with_expiration()
     |> GameEngine.impl().create()
   end
@@ -47,19 +48,19 @@ defmodule Alternis.Landing do
   defp validate_settings(game_params) do
     %GameSettings{}
     |> GameSettings.changeset(game_params)
-    |> DictionaryEngine.impl().validate_word(:secret)
+    |> GameSettings.validate_in_dictionary(:secret)
   end
 
   defp with_expiration(settings = %GameSettings{}) do
     %{settings | expires_at: datetime_in(1, :hour)}
   end
 
-  defp with_language(settings = %GameSettings{secret: secret}) do
-    %{settings | language: language_of(secret)}
+  defp with_language(settings = %GameSettings{secret: secret, language: language}) do
+    %{settings | language: language_of(secret, language)}
   end
 
-  defp language_of(secret) do
-    case DictionaryEngine.impl().find_word(secret) do
+  defp language_of(secret, language) do
+    case DictionaryEngine.impl().find_word(secret, language) do
       nil -> nil
       word -> word.language
     end
