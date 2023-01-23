@@ -3,28 +3,6 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
-  alias Alternis.Dictionary
-  alias Alternis.Game.GameLanguage
-  alias Alternis.Repo
-  alias Alternis.Word
-
-  @spec secret(GameLanguage.t()) :: String.t() | nil
-  def secret(language) do
-    import Ecto.Query
-
-    Repo.one(
-      from w in Word,
-        join: d in Dictionary,
-        on: d.id == w.dictionary_id,
-        where:
-          d.language == ^language and
-            fragment("LENGTH(lemma) > ?", 4) and fragment("LENGTH(lemma) < ?", 9),
-        select: w.lemma,
-        order_by: fragment("RANDOM()"),
-        limit: 1
-    )
-  end
-
   @spec match(String.t(), String.t()) :: {list, list, boolean}
   def match(guess, secret) do
     validate!(guess, secret)

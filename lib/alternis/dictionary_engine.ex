@@ -8,4 +8,5 @@ defmodule Alternis.Engines.DictionaryEngine do
   def impl, do: @implementation
 
   @callback find_word(String.t(), GameLanguage.t()) :: Word.t() | nil
+  @callback secret(GameLanguage.t()) :: String.t() | nil
 end

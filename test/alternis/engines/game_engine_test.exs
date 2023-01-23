@@ -1,6 +1,7 @@
 defmodule Alternis.Engines.GameEngine.ImplTest do
   use Alternis.DataCase, async: true
 
+  alias Alternis.Engines.DictionaryEngine
   alias Alternis.Engines.GameEngine
   alias Alternis.Engines.MatchEngine
   alias Alternis.Game
@@ -18,7 +19,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with engine generated secret" do
     setup do
-      expect(MatchEngine.impl(), :secret, fn _game -> "secret" end)
+      expect(DictionaryEngine.impl(), :secret, fn _game -> "secret" end)
       {:ok, settings: build(:game_settings, secret: nil)}
     end
 
@@ -30,7 +31,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with engine failing to generate a secret" do
     setup do
-      Mock.allow_to_call_impl(MatchEngine, :secret, 1, WordleImpl)
+      Mock.allow_to_call_impl(DictionaryEngine, :secret, 1)
       {:ok, settings: build(:game_settings, secret: nil)}
     end
 
