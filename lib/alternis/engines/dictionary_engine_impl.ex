@@ -23,4 +23,21 @@ defmodule Alternis.Engines.DictionaryEngine.Impl do
     )
     |> Repo.one()
   end
+
+  @spec secret(GameLanguage.t()) :: String.t() | nil
+  def secret(language) do
+    import Ecto.Query
+
+    Repo.one(
+      from w in Word,
+        join: d in Dictionary,
+        on: d.id == w.dictionary_id,
+        where:
+          d.language == ^language and
+            fragment("LENGTH(lemma) > ?", 4) and fragment("LENGTH(lemma) < ?", 9),
+        select: w.lemma,
+        order_by: fragment("RANDOM()"),
+        limit: 1
+    )
+  end
 end
