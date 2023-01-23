@@ -7,9 +7,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   alias Alternis.Engines.MatchEngine
   alias Alternis.Game
-  alias Alternis.Game.GameState
-  alias Alternis.Game.GameState.Created
-  alias Alternis.Game.GameState.Running
+  alias Alternis.Game.{GameState, GameState.Created, GameState.Running}
   alias Alternis.GameSettings
   alias Alternis.Guess
   alias Alternis.Repo

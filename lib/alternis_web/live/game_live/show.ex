@@ -10,7 +10,7 @@ defmodule AlternisWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_info(%{topic: game_id}, socket) do
+  def handle_info(%{topic: game_id, event: "guess_placed"}, socket) do
     game = Landing.get_game!(game_id)
     {:noreply, assign(socket, :game, game)}
   end
