@@ -14,7 +14,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   @spec create(GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
   def create(settings = %GameSettings{secret: nil}) do
-    case MatchEngine.impl().secret(settings) do
+    case MatchEngine.impl().secret(settings.language) do
       nil -> {:error, %{reason: :secret_not_found, settings: settings}}
       secret -> create(%{settings | secret: secret})
     end

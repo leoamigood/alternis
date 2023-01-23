@@ -20,17 +20,17 @@ defmodule Alternis.Engines.DictionaryEngine.ImplTest do
     end
 
     test "finds word in dictionary" do
-      assert %Word{lemma: "secret"} = DictionaryEngine.Impl.find_word("secret")
-      refute DictionaryEngine.Impl.find_word("nonexistent")
+      assert %Word{lemma: "secret"} = DictionaryEngine.Impl.find_word("secret", English)
+      refute DictionaryEngine.Impl.find_word("nonexistent", English)
     end
 
     test "finds word in dictionary in non english" do
-      assert %Word{lemma: "секрет"} = DictionaryEngine.Impl.find_word("секрет")
+      assert %Word{lemma: "секрет"} = DictionaryEngine.Impl.find_word("секрет", Russian)
     end
 
     test "finds word in dictionary case insensitive" do
-      assert %Word{lemma: "secret"} = DictionaryEngine.Impl.find_word("Secret")
-      assert %Word{lemma: "секрет"} = DictionaryEngine.Impl.find_word("Секрет")
+      assert %Word{lemma: "secret"} = DictionaryEngine.Impl.find_word("Secret", English)
+      assert %Word{lemma: "секрет"} = DictionaryEngine.Impl.find_word("Секрет", Russian)
     end
   end
 end

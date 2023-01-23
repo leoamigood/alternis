@@ -10,6 +10,7 @@
     phx-submit="save">
   
     <%= label f, :secret %>
+    <%= select f, :language, ["English": "english", "Russian": "russian"], "phx-throttle": "300" %>
     <%= text_input f, :secret, autofocus: true %>
     <%= error_tag f, :secret %>
   
