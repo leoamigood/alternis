@@ -46,21 +46,19 @@ defmodule Alternis.Engines.GameEngine.Impl do
   end
 
   defp do_guess(game, word) do
-    with guess <- match(game, word) do
+    with match <- MatchEngine.impl().match(word, game.secret) do
       Repo.transaction(fn ->
-        case guess.exact? do
-          true -> Game.update_state!(game, GameState.Finished)
-          false -> Game.update_state!(game, GameState.Running)
+        case match.exact? do
+          true -> Game.update_state(game, GameState.Finished)
+          false -> Game.update_state(game, GameState.Running)
         end
 
-        Repo.insert!(guess)
+        game
+        |> Ecto.build_assoc(:guesses)
+        |> Guess.changeset(Map.from_struct(match))
+        |> Repo.insert!()
       end)
     end
-  end
-
-  defp match(game, word) do
-    {bulls, cows, exact} = MatchEngine.impl().match(word, game.secret)
-    %Guess{game: game, word: word, bulls: bulls, cows: cows, exact?: exact}
   end
 
   @spec get(Game.id()) :: Game.t() | nil
@@ -80,12 +78,8 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
       game ->
         case Game.validate_state(game) do
-          :ok ->
-            Game.update_state!(game, GameState.Aborted)
-            :ok
-
-          {:error, errors} ->
-            {:error, errors}
+          :ok -> Game.update_state(game, GameState.Aborted) |> elem(0)
+          {:error, errors} -> {:error, errors}
         end
     end
   end

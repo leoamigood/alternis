@@ -10,6 +10,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   alias Alternis.Game.GameState.Created
   alias Alternis.Game.GameState.Finished
   alias Alternis.Guess
+  alias Alternis.Match
   alias Alternis.Repo
 
   import Alternis.Factory
@@ -19,7 +20,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with engine generated secret" do
     setup do
-      expect(DictionaryEngine.impl(), :secret, fn _game -> "secret" end)
+      expect(DictionaryEngine.impl(), :secret, fn _secret -> "secret" end)
       {:ok, settings: build(:game_settings, secret: nil)}
     end
 
@@ -31,7 +32,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with engine failing to generate a secret" do
     setup do
-      Mock.allow_to_call_impl(DictionaryEngine, :secret, 1)
+      expect(DictionaryEngine.impl(), :secret, fn _secret -> nil end)
       {:ok, settings: build(:game_settings, secret: nil)}
     end
 
@@ -60,7 +61,10 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "guess/2 placing a guess" do
     setup do
-      expect(MatchEngine.impl(), :match, fn "secret", "secret" -> {[6], [], true} end)
+      expect(MatchEngine.impl(), :match, fn "secret", "secret" ->
+        %Match{word: "secret", bulls: [6], cows: [], exact?: true}
+      end)
+
       {:ok, game: insert(:game, secret: "secret")}
     end
 

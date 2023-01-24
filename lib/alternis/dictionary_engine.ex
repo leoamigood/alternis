@@ -9,4 +9,5 @@ defmodule Alternis.Engines.DictionaryEngine do
 
   @callback find_word(String.t(), GameLanguage.t()) :: Word.t() | nil
   @callback secret(GameLanguage.t()) :: String.t() | nil
+  @callback secret(GameLanguage.t(), map) :: String.t() | nil
 end

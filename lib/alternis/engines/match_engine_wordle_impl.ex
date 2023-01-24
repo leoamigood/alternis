@@ -3,32 +3,43 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     Implements Wordle logic for matching a guess to the secret word
   """
 
-  @spec match(String.t(), String.t()) :: {list, list, boolean}
-  def match(guess, secret) do
-    validate!(guess, secret)
-    do_match(by_letter(guess), by_letter(secret))
-  end
+  alias Alternis.Match
 
-  defp validate!(guess, secret) do
-    case String.length(guess) == String.length(secret) do
-      true ->
-        :ok
+  @spec match(String.t(), String.t()) :: Match.t() | {:error, map}
+  def match(word, secret) do
+    case validate(word, secret) do
+      :ok ->
+        {bulls, cows} = do_match(word |> by_letter, secret |> by_letter)
+        Match.new(word, secret, bulls, cows)
 
-      false ->
-        raise RuntimeError,
-              "unable to match guess '#{guess}' to secret word '#{secret}' - length mismatch"
+      {:error, errors} ->
+        {:error, errors}
     end
   end
 
-  defp do_match(guess, secret) when is_list(guess) and is_list(secret) do
-    bulls = bulls(guess, secret)
-    cows = cows(guess |> exclude(bulls), secret |> exclude(bulls))
-
-    {bulls |> to_positions, cows |> to_positions, nil not in bulls}
+  defp validate(word, secret) do
+    case String.length(word) == String.length(secret) do
+      true -> :ok
+      false -> {:error, %{reason: :length_mismatch, word: word, secret: secret}}
+    end
   end
 
-  defp bulls(guess, secret) do
-    Enum.zip_with(guess, secret, fn g, s -> if g == s, do: g, else: nil end)
+  defp do_match(word, secret) when is_list(word) and is_list(secret) do
+    bulls = bulls(word, secret)
+    cows = cows(word |> exclude(bulls), secret |> exclude(bulls))
+
+    {bulls |> to_positions, cows |> to_positions}
+  end
+
+  defp bulls(word, secret) do
+    Enum.zip_with(word, secret, fn g, s -> if g == s, do: g, else: nil end)
+  end
+
+  defp cows(word, secret) do
+    Enum.reduce(word, [], fn letter, matched ->
+      if Enum.member?(secret -- matched, letter), do: [letter | matched], else: [nil | matched]
+    end)
+    |> Enum.reverse()
   end
 
   defp to_positions(list) do
@@ -37,13 +48,6 @@ defmodule Alternis.Engines.MatchEngine.WordleImpl do
     |> Stream.reject(&match?({nil, _index}, &1))
     |> Stream.map(fn {_value, index} -> index end)
     |> Enum.to_list()
-  end
-
-  defp cows(guess, secret) do
-    Enum.reduce(guess, [], fn letter, matched ->
-      if Enum.member?(secret -- matched, letter), do: [letter | matched], else: [nil | matched]
-    end)
-    |> Enum.reverse()
   end
 
   defp exclude(letters, extra) do
