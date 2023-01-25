@@ -50,9 +50,9 @@ defmodule Alternis.Game do
     end
   end
 
-  def update_state!(game, state) do
+  def update_state(game, state) do
     game
     |> changeset(%{state: state})
-    |> Repo.update!()
+    |> Repo.update()
   end
 end

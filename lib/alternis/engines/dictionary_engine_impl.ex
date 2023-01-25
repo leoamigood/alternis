@@ -24,8 +24,8 @@ defmodule Alternis.Engines.DictionaryEngine.Impl do
     |> Repo.one()
   end
 
-  @spec secret(GameLanguage.t()) :: String.t() | nil
-  def secret(language) do
+  @spec secret(GameLanguage.t(), map) :: String.t() | nil
+  def secret(language, opts \\ %{min: 4, max: 9}) do
     import Ecto.Query
 
     Repo.one(
@@ -34,7 +34,7 @@ defmodule Alternis.Engines.DictionaryEngine.Impl do
         on: d.id == w.dictionary_id,
         where:
           d.language == ^language and
-            fragment("LENGTH(lemma) > ?", 4) and fragment("LENGTH(lemma) < ?", 9),
+            fragment("LENGTH(lemma) > ?", ^opts.min) and fragment("LENGTH(lemma) < ?", ^opts.max),
         select: w.lemma,
         order_by: fragment("RANDOM()"),
         limit: 1

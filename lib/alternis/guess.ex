@@ -23,10 +23,10 @@ defmodule Alternis.Guess do
     timestamps()
   end
 
-  def changeset(schema) do
+  def changeset(schema, attrs \\ %{}) do
     schema
-    |> change()
-    |> validate_required([:word, :bulls, :cows])
+    |> cast(attrs, [:word, :bulls, :cows, :exact?])
+    |> validate_required([:word, :bulls, :cows, :exact?])
   end
 
   def validate_word(game, attrs \\ %{}) do
