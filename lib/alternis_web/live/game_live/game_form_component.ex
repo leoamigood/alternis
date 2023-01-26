@@ -1,6 +1,8 @@
 defmodule AlternisWeb.GameLive.GameFormComponent do
   use AlternisWeb, :live_component
 
+  import AlternisWeb.Endpoint
+
   alias Alternis.GameSettings
   alias Alternis.Landing
   alias AlternisWeb.GameLive
@@ -33,7 +35,7 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
   defp create_game(socket, :new, game_params) do
     case Landing.create_game(game_params) do
       {:ok, _game_id} ->
-        AlternisWeb.Endpoint.broadcast_from!(self(), GameLive.Index.topic(), "save_game", [])
+        broadcast_from!(self(), GameLive.Index.topic(), "save_game", [])
 
         {:noreply,
          socket
