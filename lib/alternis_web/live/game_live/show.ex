@@ -10,9 +10,16 @@ defmodule AlternisWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_info(%{topic: game_id, event: "guess_placed"}, socket) do
-    game = Landing.get_game!(game_id)
+  def handle_info(%{event: "guess_placed"}, socket) do
+    game = Landing.get_game!(socket.assigns.game.id)
     {:noreply, assign(socket, :game, game)}
+  end
+
+  def handle_info(%{event: "game_ended", payload: %{return_to: return_to}}, socket) do
+    {:noreply,
+     socket
+     |> put_flash(:error, "Game has ended!")
+     |> push_redirect(to: return_to)}
   end
 
   @impl true
@@ -24,11 +31,7 @@ defmodule AlternisWeb.GameLive.Show do
       game ->
         {:noreply,
          socket
-         |> assign(:page_title, page_title(socket.assigns.live_action))
          |> assign(:game, game)}
     end
   end
-
-  defp page_title(:show), do: "Show Game"
-  defp page_title(:guess), do: "Enter Guess"
 end

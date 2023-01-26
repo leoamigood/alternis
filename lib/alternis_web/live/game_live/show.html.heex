@@ -3,9 +3,8 @@
 <%= if @live_action in [:guess] do %>
   <.modal return_to={Routes.game_show_path(@socket, :show, @game.id)}>
     <.live_component
-      module={AlternisWeb.GameLive.GuessComponent}
-      id={@game.id || :guess}
-      title={@page_title}
+      module={AlternisWeb.GameLive.GuessFormComponent}
+      id={:guess}
       action={@live_action}
       game={@game}
       return_to={Routes.game_show_path(@socket, :show, @game.id)}
@@ -14,18 +13,12 @@
 <% end %>
 
 <ul>
-  <strong>Language:</strong> <%= Recase.to_pascal(@game.language.value) %>
-  <li>
-    <strong>Secret:</strong>
-    <%= String.pad_leading("", String.length(@game.secret), "*") %>
-      <ul>
-        <%= for {guess, i} <- Enum.with_index(@game.guesses, 1) do %>
-            <li style={if guess.exact?, do: "color:green"}>
-               <%= i %>: <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(guess.cows) %>
-            </li>
-        <% end %>
-      </ul>
-  </li>
+  <.live_component
+    module={AlternisWeb.GameLive.GameComponent}
+    id={@game.id}
+    game={@game}
+    action={@live_action}
+  />
 
   <%= if @game.in_progress? do %>
       <span><%= live_patch "Place a guess", to: Routes.game_show_path(@socket, :guess, @game.id) %></span>

@@ -38,9 +38,9 @@ defmodule Alternis.Engines.GameEngine.Impl do
         not_found_error(Game, game_id)
 
       game ->
-        case Game.validate_state(game) do
-          :ok -> do_guess(game, word |> String.downcase())
-          {:error, errors} -> {:error, errors}
+        case game.in_progress? do
+          true -> do_guess(game, word |> String.downcase())
+          false -> {:error, %{reason: :unpermitted_action, action: :guess, game: game}}
         end
     end
   end
@@ -77,9 +77,9 @@ defmodule Alternis.Engines.GameEngine.Impl do
         not_found_error(Game, game_id)
 
       game ->
-        case Game.validate_state(game) do
-          :ok -> Game.update_state(game, GameState.Aborted) |> elem(0)
-          {:error, errors} -> {:error, errors}
+        case game.in_progress? do
+          true -> Game.update_state(game, GameState.Aborted) |> elem(0)
+          false -> {:error, %{reason: :unpermitted_action, action: :abort, game: game}}
         end
     end
   end
