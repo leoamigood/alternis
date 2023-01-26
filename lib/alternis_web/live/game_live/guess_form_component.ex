@@ -1,10 +1,11 @@
 defmodule AlternisWeb.GameLive.GuessFormComponent do
   use AlternisWeb, :live_component
 
+  import AlternisWeb.Endpoint
+
   alias Alternis.GameSettings
   alias Alternis.Guess
   alias Alternis.Landing
-  alias AlternisWeb.Endpoint
 
   @impl true
   def update(assigns = %{game: game}, socket) do
@@ -32,33 +33,25 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
 
   @impl true
   def handle_event("place", %{"guess" => guess_params}, socket) do
-    guess(socket, socket.assigns.action, guess_params)
+    {:noreply,
+     socket
+     |> guess(socket.assigns.action, guess_params)
+     |> push_redirect(to: socket.assigns.return_to)}
   end
 
   defp guess(socket, :guess, guess_params) do
     case Landing.guess(socket.assigns.game, guess_params) do
       {:ok, guess = %{exact?: false}} ->
-        Endpoint.broadcast!(guess.game_id, "guess_placed", %{})
-
-        {:noreply,
-         socket
-         |> put_flash(:info, "Guess posted successfully")
-         |> push_redirect(to: socket.assigns.return_to)}
+        broadcast!(guess.game_id, "guess_placed", %{})
+        put_flash(socket, :info, "Guess posted successfully")
 
       {:ok, guess = %{exact?: true}} ->
-        Endpoint.broadcast!(guess.game_id, "guess_placed", %{})
-        Endpoint.broadcast!(guess.game_id, "game_ended", %{return_to: socket.assigns.return_to})
-
-        {:noreply,
-         socket
-         |> put_flash(:warn, "Congratulations! You guessed the secret word")
-         |> push_redirect(to: socket.assigns.return_to)}
+        broadcast!(guess.game_id, "guess_placed", %{})
+        broadcast!(guess.game_id, "game_ended", %{return_to: socket.assigns.return_to})
+        put_flash(socket, :warn, "Congratulations! You guessed the secret word")
 
       {:error, %{game: %{in_progress?: false}}} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Game has ended!")
-         |> push_redirect(to: socket.assigns.return_to)}
+        put_flash(socket, :error, "Game has ended!")
     end
   end
 end
