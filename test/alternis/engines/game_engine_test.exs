@@ -105,7 +105,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     test "fails with error without creating a guess", %{game: %Game{id: game_id}} do
       errors = GameEngine.Impl.guess(game_id, "secret")
 
-      assert {:error, %{reason: :action_in_state_error}} = errors
+      assert {:error, %{reason: :unpermitted_action, action: :guess}} = errors
       assert 0 == Repo.aggregate(Guess, :count, :id)
     end
   end
@@ -118,7 +118,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     test "fails with error without creating a guess", %{game: %Game{id: game_id}} do
       errors = GameEngine.Impl.guess(game_id, "secret")
 
-      assert {:error, %{reason: :action_in_state_error}} = errors
+      assert {:error, %{reason: :unpermitted_action, action: :guess}} = errors
       assert 0 == Repo.aggregate(Guess, :count, :id)
     end
   end
@@ -168,7 +168,9 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "fails with errors and does not change game state", %{game: %Game{id: game_id}} do
-      assert {:error, %{reason: :action_in_state_error}} = GameEngine.Impl.abort(game_id)
+      assert {:error, %{reason: :unpermitted_action, action: :abort}} =
+               GameEngine.Impl.abort(game_id)
+
       assert %Game{state: Finished} = Repo.get(Game, game_id)
     end
   end

@@ -1,4 +1,4 @@
-defmodule AlternisWeb.GameLive.FormComponent do
+defmodule AlternisWeb.GameLive.GameFormComponent do
   use AlternisWeb, :live_component
 
   alias Alternis.GameSettings

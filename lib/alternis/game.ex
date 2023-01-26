@@ -43,13 +43,6 @@ defmodule Alternis.Game do
     }
   end
 
-  def validate_state(game) do
-    case game.in_progress? do
-      true -> :ok
-      false -> {:error, %{reason: :action_in_state_error, game: game}}
-    end
-  end
-
   def update_state(game, state) do
     game
     |> changeset(%{state: state})
