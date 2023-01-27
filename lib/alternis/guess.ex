@@ -29,19 +29,22 @@ defmodule Alternis.Guess do
     |> validate_required([:word, :bulls, :cows, :exact?])
   end
 
-  def validate_word(game, attrs \\ %{}) do
+  def validate_word(attrs \\ %{}) do
     %Guess{}
     |> cast(attrs, [:word])
     |> validate_required([:word])
-    |> validate_length(:word, is: String.length(game.secret))
-    |> validate_in_dictionary(game.language)
   end
 
-  defp validate_in_dictionary(changeset, _language) when length(changeset.errors) > 0 do
+  def validate_word_length(changeset, exact_length) do
+    changeset
+    |> validate_length(:word, is: exact_length)
+  end
+
+  def validate_word_in_dictionary(changeset, _language) when length(changeset.errors) > 0 do
     changeset
   end
 
-  defp validate_in_dictionary(changeset, language) do
+  def validate_word_in_dictionary(changeset, language) do
     validate_change(changeset, :word, fn _field, word ->
       case DictionaryEngine.impl().find_word(word, language) do
         nil -> [{:word, "word not in dictionary"}]
