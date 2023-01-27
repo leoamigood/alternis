@@ -19,20 +19,20 @@ defmodule Alternis.Landing do
     GameEngine.impl().get(id) |> Repo.preload(guesses: from(g in Guess, order_by: g.inserted_at))
   end
 
-  def guess(game, %{"word" => word}) do
+  def guess(game, word) do
     GameEngine.impl().guess(game.id, word)
   end
 
-  def create_game(game_settings = %{"secret" => ""}) do
+  def create_game(settings = %{"secret" => ""}) do
     %GameSettings{}
-    |> GameSettings.changeset(game_settings)
+    |> GameSettings.changeset(settings)
     |> Ecto.Changeset.apply_changes()
     |> with_expiration()
     |> GameEngine.impl().create()
   end
 
-  def create_game(game_params) do
-    case validate_settings(game_params) do
+  def create_game(settings) do
+    case validate_settings(settings) do
       changeset = %Ecto.Changeset{valid?: true} ->
         changeset
         |> Ecto.Changeset.apply_changes()
@@ -45,9 +45,9 @@ defmodule Alternis.Landing do
     end
   end
 
-  defp validate_settings(game_params) do
+  defp validate_settings(settings) do
     %GameSettings{}
-    |> GameSettings.changeset(game_params)
+    |> GameSettings.changeset(settings)
     |> GameSettings.validate_in_dictionary(:secret)
   end
 
