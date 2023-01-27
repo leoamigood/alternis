@@ -66,6 +66,7 @@ defmodule Alternis.MixProject do
       {:appsignal_phoenix, "~> 2.0"},
       {:redirect, "~> 0.4.0"},
       {:oban, "~> 2.13"},
+      {:ecto_erd, "~> 0.5", only: :dev},
       {:recase, "~> 0.5"}
     ]
   end
