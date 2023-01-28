@@ -1,6 +1,8 @@
 defmodule AlternisWeb.GameLive.GuessFormComponent do
   use AlternisWeb, :live_component
 
+  import AlternisWeb.Endpoint
+
   alias Alternis.Guess
   alias Alternis.Landing
 
@@ -37,26 +39,22 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
     {:noreply,
      socket
      |> guess(socket.assigns.action, guess_params, game)
-     |> push_redirect(to: socket.assigns.return_to)}
+     |> push_patch(to: socket.assigns.return_to)}
   end
 
   defp guess(socket, :guess, _guess_params = %{"word" => word}, game) do
     case Landing.guess(game, word) do
-      {:ok, %{exact?: false}} ->
-        notify!(game.id, "guess_placed")
+      {:ok, guess = %{exact?: false}} ->
+        broadcast!(game.id, "guess_placed", %{guess: guess})
         put_flash(socket, :info, "Guess posted successfully")
 
-      {:ok, %{exact?: true}} ->
-        notify!(game.id, "guess_placed")
-        notify!(game.id, "game_ended", %{return_to: socket.assigns.return_to})
-        put_flash(socket, :warn, "Congratulations! You guessed the secret word")
+      {:ok, guess = %{exact?: true}} ->
+        broadcast!(game.id, "guess_placed", %{guess: guess})
+        broadcast_from!(self(), game.id, "game_ended", %{return_to: socket.assigns.return_to})
+        put_flash(socket, :warn, "Congratulations! You guessed the secret word!")
 
       {:error, %{game: %{in_progress?: false}}} ->
         put_flash(socket, :error, "Game has ended!")
     end
-  end
-
-  defp notify!(game_id, event, payload \\ %{}) do
-    AlternisWeb.Endpoint.broadcast_from!(self(), game_id, event, payload)
   end
 end
