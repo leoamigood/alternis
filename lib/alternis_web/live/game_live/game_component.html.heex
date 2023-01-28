@@ -3,11 +3,11 @@
   <li>
     <strong>Secret:</strong>
     <%= String.pad_leading("", String.length(@game.secret), "*") %>
-    <ul>
-      <%= for {guess, i} <- Enum.with_index(@game.guesses, 1) do %>
-          <li style={if guess.exact?, do: "color:green"}>
-             <%= i %>: <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(guess.cows) %>
-          </li>
+    <ul id="game-guesses" phx-update="append">
+      <%= for guess <- @guesses do %>
+        <li id={guess.id} style={if guess.exact?, do: "color:green"}>
+            <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(guess.cows) %>
+        </li>
       <% end %>
     </ul>
   </li>
