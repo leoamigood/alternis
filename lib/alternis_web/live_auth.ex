@@ -2,6 +2,7 @@ defmodule AlternisWeb.LiveAuth do
   @moduledoc false
 
   import Phoenix.LiveView
+  import Phoenix.Component
 
   alias Alternis.Accounts
   alias Alternis.Accounts.User

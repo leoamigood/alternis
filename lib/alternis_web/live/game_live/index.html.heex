@@ -1,14 +1,14 @@
 <h1>Running Games</h1>
 
 <%= if @live_action in [:new] do %>
-  <.modal return_to={Routes.game_index_path(@socket, :index)}>
+  <.modal return_to={~p"/games"}>
     <.live_component
       module={AlternisWeb.GameLive.GameFormComponent}
       id={:new}
       button={@button}
       action={@live_action}
       game_settings={@game_settings}
-      return_to={Routes.game_index_path(@socket, :index)}
+      return_to={~p"/games"}
     />
   </.modal>
 <% end %>
@@ -29,11 +29,11 @@
         <td><%= String.pad_leading("", String.length(game.secret), "*") %></td>
 
         <td>
-          <span><%= live_redirect "Play", to: Routes.game_show_path(@socket, :show, game) %></span>
+          <span><%= live_redirect "Play", to: ~p"/games/#{game}" %></span>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<span><%= live_redirect "New Game", to: Routes.game_index_path(@socket, :new) %></span>
+<span><%= live_redirect "New Game", to: ~p"/games/new" %></span>

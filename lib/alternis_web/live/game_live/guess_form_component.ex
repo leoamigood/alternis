@@ -50,7 +50,7 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
 
       {:ok, guess = %{exact?: true}} ->
         broadcast!(game.id, "guess_placed", %{guess: guess})
-        broadcast_from!(self(), game.id, "game_ended", %{return_to: socket.assigns.return_to})
+        broadcast!(game.id, "game_ended", %{return_to: socket.assigns.return_to})
         put_flash(socket, :warn, "Congratulations! You guessed the secret word!")
 
       {:error, %{game: %{in_progress?: false}}} ->

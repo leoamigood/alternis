@@ -28,6 +28,8 @@ defmodule AlternisWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint AlternisWeb.Endpoint
+
+      use AlternisWeb, :verified_routes
     end
   end
 

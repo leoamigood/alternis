@@ -1,13 +1,13 @@
 <h1>Game History</h1>
 
 <%= if @live_action in [:guess] do %>
-  <.modal return_to={Routes.game_show_path(@socket, :show, @game.id)}>
+  <.modal return_to={~p"/games/#{@game}"}>
     <.live_component
       module={AlternisWeb.GameLive.GuessFormComponent}
       id={:guess}
       action={@live_action}
       game={@game}
-      return_to={Routes.game_show_path(@socket, :show, @game.id)}
+      return_to={~p"/games/#{@game}"}
     />
   </.modal>
 <% end %>
@@ -22,8 +22,8 @@
   />
 
   <%= if @game.in_progress? do %>
-      <span><%= live_patch "Place a guess", to: Routes.game_show_path(@socket, :guess, @game.id) %></span>
+      <span><.link patch={~p"/games/#{@game}/guess"}>Place a guess</.link></span>
   <% end %>
 </ul>
 
-<span><%= live_redirect "Back", to: Routes.game_index_path(@socket, :index) %></span>
+<span><%= live_redirect "Back", to: ~p"/games" %></span>
