@@ -28,7 +28,7 @@ defmodule AlternisWeb.GameLive.Show do
     {:noreply,
      socket
      |> put_flash(:error, "Game has ended!")
-     |> push_patch(to: return_to)}
+     |> push_redirect(to: return_to)}
   end
 
   @impl true

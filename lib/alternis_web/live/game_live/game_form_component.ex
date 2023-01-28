@@ -38,7 +38,7 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
   defp create_game(socket, :new, game_settings_params) do
     case Landing.create_game(game_settings_params) do
       {:ok, _game_id} ->
-        broadcast_from!(self(), GameLive.Index.topic(), "save_game", [])
+        broadcast!(GameLive.Index.topic(), "save_game", [])
 
         {:noreply,
          socket
