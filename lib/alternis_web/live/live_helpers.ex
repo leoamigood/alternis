@@ -1,8 +1,7 @@
 defmodule AlternisWeb.LiveHelpers do
   @moduledoc false
 
-  import Phoenix.LiveView
-  import Phoenix.LiveView.Helpers
+  import Phoenix.Component
 
   alias Phoenix.LiveView.JS
 
@@ -38,12 +37,9 @@ defmodule AlternisWeb.LiveHelpers do
         phx-key="escape"
       >
         <%= if @return_to do %>
-          <%= live_patch "✖",
-            to: @return_to,
-            id: "close",
-            class: "phx-modal-close",
-            phx_click: hide_modal()
-          %>
+          <.link patch={@return_to} id="close" class="phx-modal-close" phx_click="hide_modal()">
+            ✖
+          </.link>
         <% else %>
           <a id="close" href="#" class="phx-modal-close" phx-click={hide_modal()}>✖</a>
         <% end %>
