@@ -4,17 +4,19 @@ defmodule AlternisWeb.GameLive.Show do
   alias Alternis.Landing
 
   @impl true
-  def mount(%{"id" => game_id}, _session, socket) do
-    AlternisWeb.Endpoint.subscribe(game_id)
-
+  def mount(%{"id" => game_id}, _session, socket = %{assigns: %{current_user: user}}) do
     case Landing.get_game!(game_id) do
       nil ->
         raise AlternisWeb.GameLive.GameNotFoundError
 
       game ->
+        AlternisWeb.Endpoint.subscribe(game_id)
+        Phoenix.Tracker.track(AlternisWeb.PlayersTracker, self(), game_id, game_id, %{user: user})
+
         {:ok,
          socket
          |> assign(:game, game)
+         |> assign(:players, [])
          |> assign(:guesses, game.guesses), temporary_assigns: [guesses: []]}
     end
   end
@@ -31,8 +33,18 @@ defmodule AlternisWeb.GameLive.Show do
      |> push_redirect(to: return_to)}
   end
 
+  def handle_info({action, game_id, %{user: _email}}, socket) when action in [:join, :leave] do
+    {:noreply, socket |> assign(:players, online_players(game_id))}
+  end
+
   @impl true
   def handle_params(_assigns, _session, socket) do
     {:noreply, socket}
+  end
+
+  defp online_players(game_id) do
+    Phoenix.Tracker.get_by_key(AlternisWeb.PlayersTracker, game_id, game_id)
+    |> Enum.map(fn {_pid, %{user: user}} -> user.email end)
+    |> Enum.uniq()
   end
 end
