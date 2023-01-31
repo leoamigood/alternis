@@ -19,6 +19,8 @@ defmodule Alternis.Application do
       AlternisWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Alternis.PubSub},
+      {AlternisWeb.PlayersTracker,
+       [name: AlternisWeb.PlayersTracker, pubsub_server: Alternis.PubSub]},
       # Start the Endpoint (http/https)
       AlternisWeb.Endpoint
       # Start a worker by calling: Alternis.Worker.start_link(arg)

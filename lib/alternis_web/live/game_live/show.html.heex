@@ -1,3 +1,10 @@
+<h2>Online Players:</h2>
+<.live_component
+    module={AlternisWeb.GameLive.PlayersComponent}
+    id={"players-#{@game.id}"}
+    players={@players}
+/>
+
 <h1>Game History</h1>
 
 <%= if @live_action in [:guess] do %>
