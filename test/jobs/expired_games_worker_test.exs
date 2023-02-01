@@ -12,15 +12,64 @@ defmodule Alternis.ExpiredGamesWorkerTest do
   alias Alternis.Game.GameState.Expired
   alias Alternis.Game.GameState.Finished
   alias Alternis.Game.GameState.Running
+  alias AlternisWeb.GameLive.Index
 
-  test "succeeds to expire stale games in progress" do
+  test "returns total amount of expired games" do
+    insert(:game, state: Created, expires_at: ago(60, :second))
+    insert(:game, state: Running, expires_at: ago(1, :day))
+
+    assert {:ok, 2} = perform_job(Alternis.ExpiredGamesWorker, %{})
+  end
+
+  test "updates games to expire status" do
     %Game{id: created} = insert(:game, state: Created, expires_at: ago(60, :second))
     %Game{id: running} = insert(:game, state: Running, expires_at: ago(1, :day))
 
-    assert {:ok, 2} = perform_job(Alternis.ExpiredGamesWorker, %{})
+    perform_job(Alternis.ExpiredGamesWorker, %{})
 
     assert %Game{state: Expired, expires_at: nil} = Repo.get!(Game, created)
     assert %Game{state: Expired, expires_at: nil} = Repo.get!(Game, running)
+  end
+
+  describe "with games list subscription" do
+    setup do
+      AlternisWeb.Endpoint.subscribe(Index.topic())
+      on_exit(fn -> AlternisWeb.Endpoint.unsubscribe(Index.topic()) end)
+
+      {:ok, %{topic: Index.topic()}}
+    end
+
+    test "succeeds to notify game players" do
+      insert(:game, state: Created, expires_at: ago(60, :second))
+
+      perform_job(Alternis.ExpiredGamesWorker, %{})
+
+      assert_receive %{topic: "players"}
+    end
+  end
+
+  describe "with particular games subscriptions" do
+    setup do
+      %Game{id: created} = insert(:game, state: Created, expires_at: ago(60, :second))
+      %Game{id: running} = insert(:game, state: Running, expires_at: ago(1, :day))
+
+      AlternisWeb.Endpoint.subscribe(created)
+      AlternisWeb.Endpoint.subscribe(running)
+
+      on_exit(fn ->
+        AlternisWeb.Endpoint.unsubscribe(created)
+        AlternisWeb.Endpoint.unsubscribe(running)
+      end)
+
+      {:ok, %{games: [created, running]}}
+    end
+
+    test "succeeds to notify game players", %{games: [created, running]} do
+      perform_job(Alternis.ExpiredGamesWorker, %{})
+
+      assert_receive %{topic: ^created, event: "game_ended"}
+      assert_receive %{topic: ^running, event: "game_ended"}
+    end
   end
 
   test "does not expire any fresh games" do

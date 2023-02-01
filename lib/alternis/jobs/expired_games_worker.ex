@@ -12,17 +12,18 @@ defmodule Alternis.ExpiredGamesWorker do
   alias Alternis.Game.GameState.{Created, Expired, Running}
   alias Alternis.PubSub
   alias Alternis.Repo
-  alias AlternisWeb.GameLive
+  alias AlternisWeb.GameLive.{Index, Show}
 
   require Logger
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
     Logger.info("Expire stale games...")
-    {total, _} = expire()
+    {total, games} = expire()
     Logger.info("Expired #{total} games.")
 
-    notify_all_players()
+    notify_players(games)
+    refresh_running_games()
 
     {:ok, total}
   end
@@ -32,6 +33,7 @@ defmodule Alternis.ExpiredGamesWorker do
 
   defp expire(cutoff \\ DateTime.utc_now()) do
     from(g in Game,
+      select: g,
       where:
         g.state in [^Created, ^Running] and
           g.expires_at < ^cutoff
@@ -39,7 +41,14 @@ defmodule Alternis.ExpiredGamesWorker do
     |> Repo.update_all(set: [state: Expired, expires_at: nil])
   end
 
-  defp notify_all_players do
-    Phoenix.PubSub.broadcast(PubSub, GameLive.Index.topic(), %{topic: GameLive.Index.topic()})
+  defp notify_players(games) do
+    games
+    |> Enum.each(fn game ->
+      Phoenix.PubSub.broadcast(PubSub, game.id, %{topic: game.id, event: Show.game_ended_event()})
+    end)
+  end
+
+  defp refresh_running_games do
+    Phoenix.PubSub.broadcast(PubSub, Index.topic(), %{topic: Index.topic()})
   end
 end

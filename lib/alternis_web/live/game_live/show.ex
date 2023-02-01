@@ -3,6 +3,12 @@ defmodule AlternisWeb.GameLive.Show do
 
   alias Alternis.Landing
 
+  @game_ended_event "game_ended"
+  @guess_placed_event "guess_placed"
+
+  def game_ended_event, do: @game_ended_event
+  def guess_placed_event, do: @guess_placed_event
+
   @impl true
   def mount(%{"id" => game_id}, _session, socket = %{assigns: %{current_user: user}}) do
     case Landing.get_game!(game_id) do
@@ -16,17 +22,17 @@ defmodule AlternisWeb.GameLive.Show do
         {:ok,
          socket
          |> assign(:game, game)
-         |> assign(:players, [])
+         |> assign(:players, online_players(game.id))
          |> assign(:guesses, game.guesses), temporary_assigns: [guesses: []]}
     end
   end
 
   @impl true
-  def handle_info(%{event: "guess_placed", payload: %{guess: guess}}, socket) do
+  def handle_info(%{event: @game_ended_event, payload: %{guess: guess}}, socket) do
     {:noreply, assign(socket, :guesses, [guess])}
   end
 
-  def handle_info(%{event: "game_ended", payload: %{return_to: return_to}}, socket) do
+  def handle_info(%{event: @game_ended_event, payload: %{return_to: return_to}}, socket) do
     {:noreply,
      socket
      |> put_flash(:error, "Game has ended!")
