@@ -5,8 +5,8 @@ Hammox.defmock(Alternis.Engines.DictionaryEngine.Mock, for: Alternis.Engines.Dic
 defmodule Mock do
   @moduledoc false
 
-  def allow_to_call_impl(module, method, arity, suffix \\ Impl) do
+  def allow_to_call_impl(module, method, arity, suffix \\ Impl, times \\ 1) do
     impl = Function.capture(Module.concat(module, suffix), method, arity)
-    Hammox.expect(module.impl(), method, impl)
+    Hammox.expect(module.impl(), method, times, impl)
   end
 end

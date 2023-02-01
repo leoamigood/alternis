@@ -7,11 +7,7 @@ defmodule Alternis.ExpiredGamesWorkerTest do
   setup :verify_on_exit!
 
   alias Alternis.Game
-  alias Alternis.Game.GameState.Aborted
-  alias Alternis.Game.GameState.Created
-  alias Alternis.Game.GameState.Expired
-  alias Alternis.Game.GameState.Finished
-  alias Alternis.Game.GameState.Running
+  alias Alternis.Game.GameState.{Aborted, Created, Expired, Finished, Running}
   alias AlternisWeb.GameLive.Index
 
   test "returns total amount of expired games" do
