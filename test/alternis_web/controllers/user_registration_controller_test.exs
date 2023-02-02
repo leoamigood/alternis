@@ -21,11 +21,12 @@ defmodule AlternisWeb.UserRegistrationControllerTest do
   describe "POST /users/register" do
     @tag :capture_log
     test "creates account and logs the user in", %{conn: conn} do
+      username = unique_username()
       email = unique_user_email()
 
       conn =
         post(conn, Routes.user_registration_path(conn, :create), %{
-          "user" => valid_user_attributes(email: email)
+          "user" => valid_user_attributes(username: username, email: email)
         })
 
       assert get_session(conn, :user_token)
@@ -40,11 +41,12 @@ defmodule AlternisWeb.UserRegistrationControllerTest do
     test "render errors for invalid data", %{conn: conn} do
       conn =
         post(conn, Routes.user_registration_path(conn, :create), %{
-          "user" => %{"email" => "with spaces", "password" => "too short"}
+          "user" => %{"username" => "cut", "email" => "with spaces", "password" => "too short"}
         })
 
       response = html_response(conn, 200)
       assert response =~ "<h1>Register</h1>"
+      assert response =~ "should be at least 5 character"
       assert response =~ "must have the @ sign and no spaces"
       assert response =~ "should be at least 12 character"
     end

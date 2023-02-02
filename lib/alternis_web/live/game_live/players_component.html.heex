@@ -1,7 +1,7 @@
 <div>
-    <%= for email <- @players do %>
+    <%= for player <- @players do %>
       <li>
-          <%= email %>
+          <%= player.username %>
       </li>
     <% end %>
 </div>

@@ -11,6 +11,7 @@
 
   <%= hidden_input f, :action, name: "action", value: "update_email" %>
 
+  <%= label f, :username %>
   <%= label f, :email %>
   <%= email_input f, :email, required: true %>
   <%= error_tag f, :email %>
