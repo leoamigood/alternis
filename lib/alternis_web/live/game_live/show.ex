@@ -50,7 +50,7 @@ defmodule AlternisWeb.GameLive.Show do
 
   defp online_players(game_id) do
     Phoenix.Tracker.get_by_key(AlternisWeb.PlayersTracker, game_id, game_id)
-    |> Enum.map(fn {_pid, %{user: user}} -> user.email end)
+    |> Enum.map(fn {_pid, %{user: user}} -> user end)
     |> Enum.uniq()
   end
 end
