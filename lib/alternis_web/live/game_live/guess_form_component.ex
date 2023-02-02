@@ -5,6 +5,7 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
 
   alias Alternis.Guess
   alias Alternis.Landing
+  alias alias AlternisWeb.GameLive.Show
 
   @impl true
   def update(_assigns, socket = %{assigns: %{changeset: _changeset}}) do
@@ -45,16 +46,24 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
   defp guess(socket, :guess, _guess_params = %{"word" => word}, game) do
     case Landing.guess(game, word) do
       {:ok, guess = %{exact?: false}} ->
-        broadcast!(game.id, "guess_placed", %{topic: game.id, guess: guess})
+        notify_guess_placed(game, guess)
         put_flash(socket, :info, "Guess posted successfully")
 
       {:ok, guess = %{exact?: true}} ->
-        broadcast!(game.id, "guess_placed", %{topic: game.id, guess: guess})
-        broadcast!(game.id, "game_ended", %{topic: game.id, return_to: socket.assigns.return_to})
+        notify_guess_placed(game, guess)
+        notify_game_ended(game, socket.assigns.return_to)
         put_flash(socket, :warn, "Congratulations! You guessed the secret word!")
 
       {:error, %{game: %{in_progress?: false}}} ->
-        put_flash(socket, :error, "Game has ended!")
+        notify_game_ended(game, socket.assigns.return_to)
     end
+  end
+
+  defp notify_guess_placed(game, guess) do
+    broadcast!(game.id, Show.guess_placed_event(), %{topic: game.id, guess: guess})
+  end
+
+  defp notify_game_ended(game, return_to) do
+    broadcast!(game.id, Show.game_ended_event(), %{topic: game.id, return_to: return_to})
   end
 end
