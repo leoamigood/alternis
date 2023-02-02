@@ -46,24 +46,24 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
   defp guess(socket, :guess, _guess_params = %{"word" => word}, game) do
     case Landing.guess(game, word) do
       {:ok, guess = %{exact?: false}} ->
-        notify_guess_placed(game, guess)
+        notify_guess_placed(guess)
         put_flash(socket, :info, "Guess posted successfully")
 
       {:ok, guess = %{exact?: true}} ->
-        notify_guess_placed(game, guess)
-        notify_game_ended(game, socket.assigns.return_to)
+        notify_guess_placed(guess)
+        notify_game_ended(game)
         put_flash(socket, :warn, "Congratulations! You guessed the secret word!")
 
       {:error, %{game: %{in_progress?: false}}} ->
-        notify_game_ended(game, socket.assigns.return_to)
+        notify_game_ended(game)
     end
   end
 
-  defp notify_guess_placed(game, guess) do
-    broadcast!(game.id, Show.guess_placed_event(), %{topic: game.id, guess: guess})
+  defp notify_guess_placed(guess) do
+    broadcast!(guess.game_id, Show.guess_placed_event(), %{topic: guess.game_id, guess: guess})
   end
 
-  defp notify_game_ended(game, return_to) do
-    broadcast!(game.id, Show.game_ended_event(), %{topic: game.id, return_to: return_to})
+  defp notify_game_ended(game) do
+    broadcast!(game.id, Show.game_ended_event(), %{topic: game.id})
   end
 end

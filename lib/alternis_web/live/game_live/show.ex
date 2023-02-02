@@ -32,12 +32,11 @@ defmodule AlternisWeb.GameLive.Show do
     {:noreply, assign(socket, :guesses, [guess])}
   end
 
-  def handle_info(%{event: @game_ended_event, payload: %{return_to: return_to}}, socket) do
-    handle_info(%{event: @game_ended_event}, socket |> push_redirect(to: return_to))
-  end
-
   def handle_info(%{event: @game_ended_event}, socket) do
-    {:noreply, socket |> put_flash(:error, "Game has ended!")}
+    {:noreply,
+     socket
+     |> put_flash(:error, "Game has ended!")
+     |> push_redirect(to: ~p"/games/#{socket.assigns.game}")}
   end
 
   def handle_info({action, game_id, %{user: _email}}, socket) when action in [:join, :leave] do
