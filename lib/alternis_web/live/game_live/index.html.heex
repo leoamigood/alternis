@@ -15,14 +15,16 @@
 <% end %>
 
 <table>
-  <thead>
-    <tr>
-      <th>Language</th>
-      <th>Secret</th>
+  <%= unless @games == [] do %>
+    <thead>
+      <tr>
+        <th>Language</th>
+        <th>Secret</th>
 
-      <th></th>
-    </tr>
-  </thead>
+        <th></th>
+      </tr>
+    </thead>
+  <% end %>
   <tbody id="games">
     <%= for game <- @games do %>
       <tr id={"game-#{game.id}"}>
