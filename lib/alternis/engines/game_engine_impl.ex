@@ -5,6 +5,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
 
   import Ecto.Query
 
+  alias Alternis.Accounts.User
   alias Alternis.Engines.DictionaryEngine
   alias Alternis.Engines.MatchEngine
   alias Alternis.Game
@@ -13,39 +14,40 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.Guess
   alias Alternis.Repo
 
-  @spec create(GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
-  def create(settings = %GameSettings{secret: nil}) do
+  @spec create(User.t(), GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
+  def create(user, settings = %GameSettings{secret: nil}) do
     case DictionaryEngine.impl().secret(settings.language) do
       nil -> {:error, %{reason: :secret_not_found, settings: settings}}
-      secret -> create(%{settings | secret: secret})
+      secret -> create(user, %{settings | secret: secret})
     end
   end
 
-  def create(settings = %GameSettings{}) do
+  def create(user, settings = %GameSettings{}) do
     %Game{id: id} =
       settings
       |> Game.configure()
       |> Game.changeset()
+      |> Ecto.Changeset.put_assoc(:user, user)
       |> Repo.insert!()
 
     {:ok, id}
   end
 
-  @spec guess(Game.id(), String.t()) :: {:ok, Guess.t()} | {:error, map}
-  def guess(game_id, word) do
+  @spec guess(User.t(), Game.id(), String.t()) :: {:ok, Guess.t()} | {:error, map}
+  def guess(user, game_id, word) do
     case get(game_id) do
       nil ->
         not_found_error(Game, game_id)
 
       game ->
         case game.in_progress? do
-          true -> do_guess(game, word |> String.downcase())
+          true -> do_guess(user, game, word |> String.downcase())
           false -> {:error, %{reason: :unpermitted_action, action: :guess, game: game}}
         end
     end
   end
 
-  defp do_guess(game, word) do
+  defp do_guess(user, game, word) do
     with match <- MatchEngine.impl().match(word, game.secret) do
       Repo.transaction(fn ->
         case match.exact? do
@@ -56,6 +58,7 @@ defmodule Alternis.Engines.GameEngine.Impl do
         game
         |> Ecto.build_assoc(:guesses)
         |> Guess.changeset(Map.from_struct(match))
+        |> Ecto.Changeset.put_assoc(:user, user)
         |> Repo.insert!()
       end)
     end

@@ -1,18 +1,16 @@
 defmodule Alternis.Engines.GameEngine.ImplTest do
   use Alternis.DataCase, async: true
 
-  alias Alternis.Engines.DictionaryEngine
-  alias Alternis.Engines.GameEngine
-  alias Alternis.Engines.MatchEngine
+  alias Alternis.Engines.{DictionaryEngine, GameEngine, MatchEngine}
   alias Alternis.Game
   alias Alternis.Game.GameState
-  alias Alternis.Game.GameState.Aborted
-  alias Alternis.Game.GameState.Created
-  alias Alternis.Game.GameState.Finished
+  alias Alternis.Game.GameState.{Aborted, Created, Finished}
   alias Alternis.Guess
   alias Alternis.Match
   alias Alternis.Repo
+  alias Ecto.ShortUUID
 
+  import Alternis.AccountsFixtures
   import Alternis.Factory
 
   import Hammox
@@ -21,34 +19,34 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   describe "create/1 with engine generated secret" do
     setup do
       expect(DictionaryEngine.impl(), :secret, fn _secret -> "secret" end)
-      {:ok, settings: build(:game_settings, secret: nil)}
+      {:ok, user: user_fixture(), settings: build(:game_settings, secret: nil)}
     end
 
-    test "creates game using generated secret", %{settings: settings} do
-      assert {:ok, uuid} = GameEngine.Impl.create(settings)
-      assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
+    test "creates game using generated secret", %{user: user, settings: settings} do
+      assert {:ok, uuid} = GameEngine.Impl.create(user, settings)
+      assert {:ok, _} = ShortUUID.dump(uuid)
     end
   end
 
   describe "create/1 with engine failing to generate a secret" do
     setup do
       expect(DictionaryEngine.impl(), :secret, fn _secret -> nil end)
-      {:ok, settings: build(:game_settings, secret: nil)}
+      {:ok, user: user_fixture(), settings: build(:game_settings, secret: nil)}
     end
 
-    test "fails creating game", %{settings: settings} do
-      assert {:error, %{reason: :secret_not_found}} = GameEngine.Impl.create(settings)
+    test "fails creating game", %{user: user, settings: settings} do
+      assert {:error, %{reason: :secret_not_found}} = GameEngine.Impl.create(user, settings)
     end
   end
 
   describe "create/1 with a settings provided secret" do
     setup do
-      {:ok, settings: build(:game_settings, secret: "Secret")}
+      {:ok, user: user_fixture(), settings: build(:game_settings, secret: "Secret")}
     end
 
-    test "creates a game with normalized lowe case secret", %{settings: settings} do
-      assert {:ok, uuid} = GameEngine.Impl.create(settings)
-      assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
+    test "creates a game with normalized lowe case secret", %{user: user, settings: settings} do
+      assert {:ok, uuid} = GameEngine.Impl.create(user, settings)
+      assert {:ok, _} = ShortUUID.dump(uuid)
 
       assert %Game{secret: "secret"} = Repo.get(Game, uuid)
     end
@@ -56,7 +54,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   test "guess/2 fails error when game not found" do
     assert {:error, %{reason: :not_found, schema: Game}} =
-             GameEngine.Impl.guess(Ecto.ShortUUID.generate(), "secret")
+             GameEngine.Impl.guess(user_fixture(), ShortUUID.generate(), "secret")
   end
 
   describe "guess/2 placing a guess" do
@@ -65,45 +63,48 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
         %Match{word: "secret", bulls: [6], cows: [], exact?: true}
       end)
 
-      {:ok, game: insert(:game, secret: "secret")}
+      {:ok, user: user_fixture(), game: insert(:game, secret: "secret")}
     end
 
-    test "invokes matching with normalized lower case word", %{game: %{id: game_id}} do
-      GameEngine.Impl.guess(game_id, "Secret")
+    test "invokes matching with normalized lower case word", %{user: user, game: %{id: game_id}} do
+      GameEngine.Impl.guess(user, game_id, "Secret")
     end
   end
 
   describe "guess/2 placing a guess during game in progress" do
     setup do
       Mock.allow_to_call_impl(MatchEngine, :match, 2, WordleImpl)
-      {:ok, game: insert(:game, secret: "secret", state: Created)}
+      {:ok, user: user_fixture(), game: insert(:game, secret: "secret", state: Created)}
     end
 
-    test "creates a guess for game", %{game: %Game{id: game_id}} do
-      assert {:ok, %Guess{id: uuid}} = GameEngine.Impl.guess(game_id, "dialog")
-      assert {:ok, _} = Ecto.ShortUUID.dump(uuid)
+    test "creates a guess for game", %{user: user, game: %Game{id: game_id}} do
+      assert {:ok, %Guess{id: uuid}} = GameEngine.Impl.guess(user, game_id, "dialog")
+      assert {:ok, _} = ShortUUID.dump(uuid)
 
       assert 1 == Repo.aggregate(Guess, :count, :id)
     end
 
-    test "changes game state to running on non exact guess", %{game: %Game{id: game_id}} do
-      assert {:ok, _} = GameEngine.Impl.guess(game_id, "dialog")
+    test "changes game state to running on non exact guess", %{
+      user: user,
+      game: %Game{id: game_id}
+    } do
+      assert {:ok, _} = GameEngine.Impl.guess(user, game_id, "dialog")
       assert %Game{state: GameState.Running} = Repo.get(Game, game_id)
     end
 
-    test "changes game state to finished on exact guess", %{game: %Game{id: game_id}} do
-      assert {:ok, _} = GameEngine.Impl.guess(game_id, "secret")
+    test "changes game state to finished on exact guess", %{user: user, game: %Game{id: game_id}} do
+      assert {:ok, _} = GameEngine.Impl.guess(user, game_id, "secret")
       assert %Game{state: Finished} = Repo.get(Game, game_id)
     end
   end
 
   describe "guess/2 placing a guess after game has finished" do
     setup do
-      {:ok, game: insert(:game, state: Finished)}
+      {:ok, user: user_fixture(), game: insert(:game, state: Finished)}
     end
 
-    test "fails with error without creating a guess", %{game: %Game{id: game_id}} do
-      errors = GameEngine.Impl.guess(game_id, "secret")
+    test "fails with error without creating a guess", %{user: user, game: %Game{id: game_id}} do
+      errors = GameEngine.Impl.guess(user, game_id, "secret")
 
       assert {:error, %{reason: :unpermitted_action, action: :guess}} = errors
       assert 0 == Repo.aggregate(Guess, :count, :id)
@@ -112,11 +113,11 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "guess/2 placing a guess after game was aborted" do
     setup do
-      {:ok, game: insert(:game, state: Aborted)}
+      {:ok, user: user_fixture(), game: insert(:game, state: Aborted)}
     end
 
-    test "fails with error without creating a guess", %{game: %Game{id: game_id}} do
-      errors = GameEngine.Impl.guess(game_id, "secret")
+    test "fails with error without creating a guess", %{user: user, game: %Game{id: game_id}} do
+      errors = GameEngine.Impl.guess(user, game_id, "secret")
 
       assert {:error, %{reason: :unpermitted_action, action: :guess}} = errors
       assert 0 == Repo.aggregate(Guess, :count, :id)
@@ -129,7 +130,8 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "succeeds for a game without guesses", %{game: game} do
-      assert game == GameEngine.Impl.get(game.id)
+      assert %Game{id: game_id} = GameEngine.Impl.get(game.id)
+      assert game_id == game.id
     end
 
     test "succeeds for a game with guesses", %{game: game} do
@@ -142,13 +144,13 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
     end
 
     test "returns nil when a game not found" do
-      assert nil == GameEngine.Impl.get(Ecto.ShortUUID.generate())
+      assert nil == GameEngine.Impl.get(ShortUUID.generate())
     end
   end
 
   test "abort/1 fails with error when game not found" do
     assert {:error, %{reason: :not_found, schema: Game}} =
-             GameEngine.Impl.abort(Ecto.ShortUUID.generate())
+             GameEngine.Impl.abort(ShortUUID.generate())
   end
 
   describe "abort/1 when game is in progress" do

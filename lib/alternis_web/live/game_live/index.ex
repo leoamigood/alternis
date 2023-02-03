@@ -24,17 +24,15 @@ defmodule AlternisWeb.GameLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :new, _params) do
+  defp apply_action(socket = %{assigns: %{current_user: user}}, :new, _params) do
     socket
-    |> assign(:page_title, "New Game")
     |> assign(:button, "Auto Generate")
+    |> assign(:user, user)
     |> assign(:game_settings, %GameSettings{})
   end
 
   defp apply_action(socket, :index, _params) do
     socket
-    |> assign(:page_title, "Listing Games")
-    |> assign(:game, nil)
   end
 
   defp list_games do

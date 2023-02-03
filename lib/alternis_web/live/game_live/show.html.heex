@@ -1,9 +1,12 @@
-<h2>Online Players:</h2>
-<.live_component
+<%= if @game.in_progress? do %>
+  <h2>Active Players:</h2>
+
+  <.live_component
     module={AlternisWeb.GameLive.PlayersComponent}
     id={"players-#{@game.id}"}
     players={@players}
-/>
+  />
+<% end %>
 
 <h1>Game History</h1>
 
@@ -14,6 +17,7 @@
       id={:guess}
       action={@live_action}
       game={@game}
+      player={@current_user}
       return_to={~p"/games/#{@game}"}
     />
   </.modal>
