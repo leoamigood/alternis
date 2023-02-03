@@ -5,6 +5,7 @@ defmodule Alternis.Guess do
 
   import Ecto.Changeset
 
+  alias Alternis.Accounts.User
   alias Alternis.Engines.DictionaryEngine
   alias Alternis.Game
   alias Alternis.Guess
@@ -13,6 +14,7 @@ defmodule Alternis.Guess do
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
   schema "guesses" do
+    belongs_to :user, User
     belongs_to :game, Game, type: Ecto.ShortUUID
 
     field :word, :string

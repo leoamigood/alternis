@@ -3,6 +3,7 @@ defmodule Alternis.Factory do
 
   @moduledoc false
 
+  alias Alternis.AccountsFixtures
   alias Alternis.Dictionary
   alias Alternis.Game
   alias Alternis.Game.GameLanguage.English
@@ -16,11 +17,20 @@ defmodule Alternis.Factory do
   end
 
   def game_factory do
-    %Game{secret: "secret", state: Created, in_progress?: true, language: English}
+    %Game{
+      user: AccountsFixtures.user_fixture(),
+      secret: "secret",
+      state: Created,
+      in_progress?: true,
+      language: English
+    }
   end
 
   def guess_factory do
-    %Guess{word: "guess"}
+    %Guess{
+      user: AccountsFixtures.user_fixture(),
+      word: "guess"
+    }
   end
 
   def dictionary_factory do

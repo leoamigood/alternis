@@ -6,6 +6,7 @@ defmodule Alternis.Game do
 
   import Ecto.Changeset
 
+  alias Alternis.Accounts.User
   alias Alternis.Game.GameLanguage
   alias Alternis.GameSettings
   alias Alternis.Repo
@@ -14,6 +15,7 @@ defmodule Alternis.Game do
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
   schema "games" do
+    belongs_to :user, User
     has_many :guesses, Alternis.Guess
     field :in_progress?, :boolean, virtual: true
 

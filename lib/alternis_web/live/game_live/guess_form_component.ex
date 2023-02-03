@@ -5,7 +5,7 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
 
   alias Alternis.Guess
   alias Alternis.Landing
-  alias alias AlternisWeb.GameLive.Show
+  alias AlternisWeb.GameLive.Show
 
   @impl true
   def update(_assigns, socket = %{assigns: %{changeset: _changeset}}) do
@@ -36,26 +36,28 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
   end
 
   @impl true
-  def handle_event("place", %{"guess" => guess_params}, socket = %{assigns: %{game: game}}) do
-    {:noreply,
-     socket
-     |> guess(socket.assigns.action, guess_params, game)
-     |> push_patch(to: socket.assigns.return_to)}
-  end
-
-  defp guess(socket, :guess, _guess_params = %{"word" => word}, game) do
-    case Landing.guess(game, word) do
+  def handle_event("place", %{"guess" => %{"word" => word}}, socket) do
+    case Landing.guess(socket.assigns.player, socket.assigns.game, word) do
       {:ok, guess = %{exact?: false}} ->
         notify_guess_placed(guess)
-        put_flash(socket, :info, "Guess posted successfully")
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Guess posted successfully")
+         |> push_patch(to: socket.assigns.return_to)}
 
       {:ok, guess = %{exact?: true}} ->
         notify_guess_placed(guess)
-        notify_game_ended(game)
-        put_flash(socket, :warn, "Congratulations! You guessed the secret word!")
+        notify_game_ended(socket.assigns.game)
+
+        {:noreply,
+         socket
+         |> put_flash(:warn, "Congratulations! You guessed the secret word!")
+         |> push_redirect(to: socket.assigns.return_to)}
 
       {:error, %{game: %{in_progress?: false}}} ->
-        notify_game_ended(game)
+        notify_game_ended(socket.assigns.game)
+        {:noreply, socket}
     end
   end
 
@@ -64,6 +66,6 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
   end
 
   defp notify_game_ended(game) do
-    broadcast!(game.id, Show.game_ended_event(), %{topic: game.id})
+    broadcast_from!(self(), game.id, Show.game_ended_event(), %{topic: game.id})
   end
 end

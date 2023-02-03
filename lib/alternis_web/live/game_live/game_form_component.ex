@@ -28,15 +28,14 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
       |> GameSettings.changeset(params)
       |> Map.put(:action, :validate)
 
-    {:noreply, socket |> assign(changeset: changeset) |> assign(:button, button_title(params))}
+    {:noreply,
+     socket
+     |> assign(changeset: changeset)
+     |> assign(:button, button_title(params))}
   end
 
   def handle_event("save", %{"game_settings" => game_settings_params}, socket) do
-    create_game(socket, socket.assigns.action, game_settings_params)
-  end
-
-  defp create_game(socket, :new, game_settings_params) do
-    case Landing.create_game(game_settings_params) do
+    case Landing.create_game(socket.assigns.player, game_settings_params) do
       {:ok, _game_id} ->
         broadcast!(GameLive.Index.topic(), "save_game", [])
 

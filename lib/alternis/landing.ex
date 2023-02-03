@@ -16,29 +16,34 @@ defmodule Alternis.Landing do
   end
 
   def get_game!(id) do
-    GameEngine.impl().get(id) |> Repo.preload(guesses: from(g in Guess, order_by: g.inserted_at))
+    GameEngine.impl().get(id)
+    |> Repo.preload(guesses: from(g in Guess, order_by: g.inserted_at, preload: :user))
   end
 
-  def guess(game, word) do
-    GameEngine.impl().guess(game.id, word)
+  def guess(user, game, word) do
+    GameEngine.impl().guess(user, game.id, word)
   end
 
-  def create_game(settings = %{"secret" => ""}) do
+  def create_game(user, settings = %{"secret" => ""}) do
     %GameSettings{}
     |> GameSettings.changeset(settings)
     |> Ecto.Changeset.apply_changes()
     |> with_expiration()
-    |> GameEngine.impl().create()
+    |> then(fn changeset ->
+      GameEngine.impl().create(user, changeset)
+    end)
   end
 
-  def create_game(settings) do
+  def create_game(user, settings) do
     case validate_settings(settings) do
       changeset = %Ecto.Changeset{valid?: true} ->
         changeset
         |> Ecto.Changeset.apply_changes()
         |> with_expiration()
         |> with_language()
-        |> GameEngine.impl().create()
+        |> then(fn changeset ->
+          GameEngine.impl().create(user, changeset)
+        end)
 
       changeset ->
         {:error, changeset}

@@ -1,6 +1,8 @@
 defmodule Alternis.Accounts.User do
   @moduledoc false
 
+  use Alternis.App, :domain_model
+
   use Ecto.Schema
   import Ecto.Changeset
 

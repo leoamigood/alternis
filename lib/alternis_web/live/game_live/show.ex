@@ -2,6 +2,7 @@ defmodule AlternisWeb.GameLive.Show do
   use AlternisWeb, :live_view
 
   alias Alternis.Landing
+  alias Alternis.Game.GameState.{Expired, Finished}
 
   @game_ended_event "game_ended"
   @guess_placed_event "guess_placed"
@@ -22,6 +23,7 @@ defmodule AlternisWeb.GameLive.Show do
         {:ok,
          socket
          |> assign(:game, game)
+         |> assign(:current_user, user)
          |> assign(:players, online_players(game.id))
          |> assign(:guesses, game.guesses), temporary_assigns: [guesses: []]}
     end
@@ -33,10 +35,7 @@ defmodule AlternisWeb.GameLive.Show do
   end
 
   def handle_info(%{event: @game_ended_event}, socket) do
-    {:noreply,
-     socket
-     |> put_flash(:error, "Game has ended!")
-     |> push_redirect(to: ~p"/games/#{socket.assigns.game}")}
+    {:noreply, socket |> push_redirect(to: ~p"/games/#{socket.assigns.game}")}
   end
 
   def handle_info({action, game_id, %{user: _email}}, socket) when action in [:join, :leave] do
@@ -44,8 +43,17 @@ defmodule AlternisWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_params(_assigns, _session, socket) do
-    {:noreply, socket}
+  def handle_params(_params, _session, socket = %{assigns: %{game: game}}) do
+    case game.state do
+      Finished ->
+        {:noreply, socket |> put_flash(:error, "Game has ended!")}
+
+      Expired ->
+        {:noreply, socket |> put_flash(:error, "Game has expired!")}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   defp online_players(game_id) do
