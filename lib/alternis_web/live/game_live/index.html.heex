@@ -1,7 +1,7 @@
 <h1>Running Games</h1>
 
 <%= if @live_action in [:new] do %>
-  <.modal return_to={~p"/games"}>
+  <.modal>
     <.live_component
       module={AlternisWeb.GameLive.GameFormComponent}
       id={:new}
@@ -9,7 +9,6 @@
       button={@button}
       action={@live_action}
       game_settings={@game_settings}
-      return_to={~p"/games"}
     />
   </.modal>
 <% end %>

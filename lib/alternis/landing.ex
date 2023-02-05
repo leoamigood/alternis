@@ -29,8 +29,8 @@ defmodule Alternis.Landing do
     |> GameSettings.changeset(settings)
     |> Ecto.Changeset.apply_changes()
     |> with_expiration()
-    |> then(fn changeset ->
-      GameEngine.impl().create(user, changeset)
+    |> then(fn settings ->
+      GameEngine.impl().create(user, settings)
     end)
   end
 
@@ -41,8 +41,8 @@ defmodule Alternis.Landing do
         |> Ecto.Changeset.apply_changes()
         |> with_expiration()
         |> with_language()
-        |> then(fn changeset ->
-          GameEngine.impl().create(user, changeset)
+        |> then(fn settings ->
+          GameEngine.impl().create(user, settings)
         end)
 
       changeset ->

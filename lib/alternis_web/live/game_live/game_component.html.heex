@@ -3,12 +3,12 @@
   <li>
     <strong>Secret:</strong>
     <%= String.pad_leading("", String.length(@game.secret), "*") %>
-    <ul id="game-guesses" phx-update="append">
-      <%= for guess <- @guesses do %>
+    <%= for guess <- @guesses do %>
+      <ul id="game-guesses" phx-update="append">
         <li id={guess.id} style={if guess.exact?, do: "color:green"}>
             <%= guess.user.username %>: <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(guess.cows) %>
         </li>
-      <% end %>
-    </ul>
+      </ul>
+    <% end %>
   </li>
 </div>
