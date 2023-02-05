@@ -55,7 +55,11 @@ defmodule AlternisWeb.Router do
     scope "/" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: AlternisWeb.Telemetry
+      live_dashboard "/dashboard",
+        metrics: AlternisWeb.Telemetry,
+        additional_pages: [
+          flame_on: FlameOn.DashboardPage
+        ]
     end
   end
 
