@@ -1,6 +1,5 @@
 defmodule AlternisWeb.GameLive.ShowTest do
   use AlternisWeb.ConnCase
-  use Patch
 
   alias Alternis.Engines.{GameEngine, MatchEngine}
   alias Alternis.Game.GameState.Created
