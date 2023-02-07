@@ -1,6 +1,5 @@
 defmodule AlternisWeb.GameLive.IndexTest do
   use AlternisWeb.ConnCase
-  use Patch
 
   alias Alternis.Engines.{DictionaryEngine, GameEngine}
   alias Alternis.Game.GameLanguage.English
