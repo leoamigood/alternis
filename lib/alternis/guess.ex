@@ -10,7 +10,7 @@ defmodule Alternis.Guess do
   alias Alternis.Game
   alias Alternis.Guess
 
-  @type id :: Ecto.ShortUUID
+  @type id :: binary
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
   schema "guesses" do

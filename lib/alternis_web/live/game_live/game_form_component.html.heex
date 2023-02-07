@@ -10,12 +10,14 @@
     phx-submit="save">
   
     <%= label f, :secret %>
-    <%= select f, :language, ["English": "english", "Russian": "russian"], "phx-throttle": "300" %>
-    <%= text_input f, :secret, autofocus: true %>
-    <%= error_tag f, :secret %>
-  
-    <div>
-      <%= submit @button, phx_disable_with: "Saving..." %>
-    </div>
+    <.focus_wrap id="settings_input" phx-connected={focus_on("#secret_input")}>
+        <%= select f, :language, ["English": "english", "Russian": "russian"], "phx-throttle": "300" %>
+        <%= text_input f, :secret, id: "secret_input" %>
+        <%= error_tag f, :secret %>
+
+        <div>
+          <%= submit @button, phx_disable_with: "Saving..." %>
+        </div>
+    </.focus_wrap>
   </.form>
 </div>

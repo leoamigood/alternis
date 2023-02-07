@@ -1,7 +1,7 @@
 <h1>Running Games</h1>
 
 <%= if @live_action in [:new] do %>
-  <.modal return_to={~p"/games"}>
+  <.modal>
     <.live_component
       module={AlternisWeb.GameLive.GameFormComponent}
       id={:new}
@@ -9,20 +9,21 @@
       button={@button}
       action={@live_action}
       game_settings={@game_settings}
-      return_to={~p"/games"}
     />
   </.modal>
 <% end %>
 
 <table>
-  <thead>
-    <tr>
-      <th>Language</th>
-      <th>Secret</th>
+  <%= unless @games == [] do %>
+    <thead>
+      <tr>
+        <th>Language</th>
+        <th>Secret</th>
 
-      <th></th>
-    </tr>
-  </thead>
+        <th></th>
+      </tr>
+    </thead>
+  <% end %>
   <tbody id="games">
     <%= for game <- @games do %>
       <tr id={"game-#{game.id}"}>

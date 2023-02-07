@@ -6,6 +6,7 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
   alias Alternis.GameSettings
   alias Alternis.Landing
   alias AlternisWeb.GameLive
+  alias Phoenix.LiveView.JS
 
   @impl true
   def update(assigns = %{game_settings: settings}, socket) do
@@ -15,6 +16,10 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
      socket
      |> assign(assigns)
      |> assign(:changeset, changeset)}
+  end
+
+  def focus_on(js \\ %JS{}, id) when is_binary(id) do
+    js |> JS.focus(to: id)
   end
 
   @impl true
@@ -36,13 +41,13 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
 
   def handle_event("save", %{"game_settings" => game_settings_params}, socket) do
     case Landing.create_game(socket.assigns.player, game_settings_params) do
-      {:ok, _game_id} ->
+      {:ok, game_id} ->
         broadcast!(GameLive.Index.topic(), "save_game", [])
 
         {:noreply,
          socket
          |> put_flash(:info, "Game created successfully")
-         |> push_redirect(to: socket.assigns.return_to)}
+         |> push_redirect(to: ~p"/games/#{game_id}")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, changeset: changeset |> Map.put(:action, :validate))}

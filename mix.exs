@@ -68,7 +68,8 @@ defmodule Alternis.MixProject do
       {:ecto_erd, "~> 0.5", only: :dev},
       {:recase, "~> 0.5"},
       {:phoenix_view, "~> 2.0.2"},
-      {:faker, "~> 0.17.0"}
+      {:faker, "~> 0.17.0"},
+      {:patch, "~> 0.12.0", only: [:test]}
     ]
   end
 

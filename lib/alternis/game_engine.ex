@@ -11,7 +11,7 @@ defmodule Alternis.Engines.GameEngine do
   def impl, do: @implementation
 
   @callback create(User.t(), GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
-  @callback guess(User.t(), Game.id(), String.t()) :: {:ok, Guess.t()} | {:error, map}
+  @callback guess(User.t(), Game.id(), word :: String.t()) :: {:ok, Guess.t()} | {:error, map}
   @callback get(Game.id()) :: Game.t() | nil
   @callback abort(Game.id()) :: :ok | {:error, map}
   @callback games(list(GameState.t())) :: list(Game.t())

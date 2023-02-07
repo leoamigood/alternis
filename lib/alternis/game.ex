@@ -11,7 +11,7 @@ defmodule Alternis.Game do
   alias Alternis.GameSettings
   alias Alternis.Repo
 
-  @type id :: Ecto.ShortUUID
+  @type id :: binary
   @primary_key {:id, Ecto.ShortUUID, autogenerate: true}
 
   schema "games" do

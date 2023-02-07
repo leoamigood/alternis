@@ -10,11 +10,13 @@
     phx-submit="place">
   
     <%= label f, "Your guess" %>
-    <%= text_input f, :word, autofocus: true %>
-    <%= error_tag f, :word %>
-  
-    <div>
-      <%= submit "Guess", phx_disable_with: "Guessing...", disabled: !@changeset.valid? %>
-    </div>
+    <.focus_wrap id="guess_input">
+        <%= text_input f, :word, autofocus: true %>
+        <%= error_tag f, :word %>
+
+        <div>
+          <%= submit "Guess", phx_disable_with: "Guessing...", disabled: !@changeset.valid? %>
+        </div>
+    </.focus_wrap>
   </.form>
 </div>
