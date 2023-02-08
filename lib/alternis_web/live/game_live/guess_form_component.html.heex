@@ -14,9 +14,7 @@
         <%= text_input f, :word, autofocus: true %>
         <%= error_tag f, :word %>
 
-        <div>
-          <%= submit "Guess", phx_disable_with: "Guessing...", disabled: !@changeset.valid? %>
-        </div>
+        <%= submit "Guess", phx_disable_with: "Guessing...", disabled: !@changeset.valid? %>
     </.focus_wrap>
   </.form>
 </div>

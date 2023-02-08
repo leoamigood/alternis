@@ -48,7 +48,7 @@ defmodule Alternis.Guess do
 
   def validate_word_in_dictionary(changeset, language) do
     validate_change(changeset, :word, fn _field, word ->
-      case DictionaryEngine.impl().find_word(word, language) do
+      case DictionaryEngine.impl().find_word(language, word) do
         nil -> [{:word, "word not in dictionary"}]
         _ -> []
       end

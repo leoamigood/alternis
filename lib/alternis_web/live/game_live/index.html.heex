@@ -13,6 +13,15 @@
   </.modal>
 <% end %>
 
-<AlternisWeb.GameLive.GameListComponent.render games={@games} />
+<.board games={@games}>
+    <:header>
+    <thead>
+      <tr>
+        <th>Language</th>
+        <th>Secret</th>
+      </tr>
+    </thead>
+    </:header>
+</.board>
 
 <span><%= live_redirect "New Game", to: ~p"/games/new" %></span>

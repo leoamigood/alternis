@@ -8,6 +8,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
   alias Alternis.Guess
   alias Alternis.Match
   alias Alternis.Repo
+  alias Alternis.Word
   alias Ecto.ShortUUID
 
   import Alternis.AccountsFixtures
@@ -18,7 +19,7 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with engine generated secret" do
     setup do
-      expect(DictionaryEngine.Mock, :secret, fn _language -> "secret" end)
+      expect(DictionaryEngine.Mock, :find_word, fn _language -> %Word{lemma: "secret"} end)
       {:ok, user: user_fixture(), settings: build(:game_settings, secret: nil)}
     end
 
@@ -30,12 +31,12 @@ defmodule Alternis.Engines.GameEngine.ImplTest do
 
   describe "create/1 with engine failing to generate a secret" do
     setup do
-      expect(DictionaryEngine.Mock, :secret, fn _language -> nil end)
+      expect(DictionaryEngine.Mock, :find_word, fn _language -> nil end)
       {:ok, user: user_fixture(), settings: build(:game_settings, secret: nil)}
     end
 
     test "fails creating game", %{user: user, settings: settings} do
-      assert {:error, %{reason: :secret_not_found}} = GameEngine.Impl.create(user, settings)
+      assert {:error, %{reason: :word_not_found}} = GameEngine.Impl.create(user, settings)
     end
   end
 

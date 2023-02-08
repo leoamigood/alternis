@@ -1,28 +1,40 @@
 defmodule AlternisWeb.GameLive.GameComponent do
   use Phoenix.Component
-  #  use AlternisWeb, :live_component
 
-  attr :game, :map, required: true
   attr :guesses, :list, required: true
+  slot :header
+  slot :footer
 
-  def render(assigns) do
+  def timeline(assigns) do
     ~H"""
     <div>
-      <strong>Language:</strong> <%= Recase.to_pascal(@game.language.value) %>
-      <li>
-        <strong>Secret:</strong>
-        <%= String.pad_leading("", String.length(@game.secret), "*") %>
+      <%= render_slot(@header) %>
+      <ul id="game-guesses" phx-update="append">
+        <%= for guess <- @guesses do %>
+          <li id={guess.id} style={if guess.exact?, do: "color:green"}>
+            <%= guess.user.username %>: <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(
+              guess.cows
+            ) %>
+          </li>
+        <% end %>
+      </ul>
+      <%= render_slot(@footer) %>
+    </div>
+    """
+  end
 
-        <ul id="game-guesses" phx-update="append">
-          <%= for guess <- @guesses do %>
-            <li id={guess.id} style={if guess.exact?, do: "color:green"}>
-              <%= guess.user.username %>: <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(
-                guess.cows
-              ) %>
-            </li>
-          <% end %>
-        </ul>
-      </li>
+  attr :players, :list, default: []
+  slot :header
+
+  def players(assigns) do
+    ~H"""
+    <div>
+      <%= render_slot(@header) %>
+      <%= for player <- @players do %>
+        <li>
+          <%= player.username %>
+        </li>
+      <% end %>
     </div>
     """
   end

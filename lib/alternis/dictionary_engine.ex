@@ -7,7 +7,7 @@ defmodule Alternis.Engines.DictionaryEngine do
   @implementation Application.compile_env!(:alternis, :dictionary_engine)
   def impl, do: @implementation
 
-  @callback find_word(word :: String.t(), GameLanguage.t()) :: Word.t() | nil
-  @callback secret(GameLanguage.t()) :: String.t() | nil
-  @callback secret(GameLanguage.t(), map) :: String.t() | nil
+  @callback find_word(GameLanguage.t()) :: Word.t() | nil
+  @callback find_word(GameLanguage.t(), word :: String.t()) :: Word.t() | nil
+  @callback find_word(GameLanguage.t(), options :: map) :: Word.t() | nil
 end
