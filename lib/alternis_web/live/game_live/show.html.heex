@@ -1,11 +1,7 @@
 <%= if @game.in_progress? do %>
   <h2>Active Players:</h2>
 
-  <.live_component
-    module={AlternisWeb.GameLive.PlayersComponent}
-    id={"players-#{@game.id}"}
-    players={@players}
-  />
+  <AlternisWeb.GameLive.PlayersComponent.render players={@players} />
 <% end %>
 
 <h1>Game History</h1>
@@ -24,13 +20,7 @@
 <% end %>
 
 <ul>
-  <.live_component
-    module={AlternisWeb.GameLive.GameComponent}
-    id={@game.id}
-    game={@game}
-    guesses={@guesses}
-    action={@live_action}
-  />
+  <AlternisWeb.GameLive.GameComponent.render game={@game} guesses={@guesses} />
 
   <%= if @game.in_progress? do %>
       <span><.link patch={~p"/games/#{@game}/guess"}>Place a guess</.link></span>

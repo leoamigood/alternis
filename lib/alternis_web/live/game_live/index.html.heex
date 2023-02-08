@@ -13,29 +13,6 @@
   </.modal>
 <% end %>
 
-<table>
-  <%= unless @games == [] do %>
-    <thead>
-      <tr>
-        <th>Language</th>
-        <th>Secret</th>
-
-        <th></th>
-      </tr>
-    </thead>
-  <% end %>
-  <tbody id="games">
-    <%= for game <- @games do %>
-      <tr id={"game-#{game.id}"}>
-        <td><%= Recase.to_pascal(game.language.value) %></td>
-        <td><%= String.pad_leading("", String.length(game.secret), "*") %></td>
-
-        <td>
-          <span><%= live_redirect "Play", to: ~p"/games/#{game}" %></span>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<AlternisWeb.GameLive.GameListComponent.render games={@games} />
 
 <span><%= live_redirect "New Game", to: ~p"/games/new" %></span>
