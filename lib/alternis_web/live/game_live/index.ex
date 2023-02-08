@@ -1,6 +1,8 @@
 defmodule AlternisWeb.GameLive.Index do
   use AlternisWeb, :live_view
 
+  import AlternisWeb.GameLive.GameListComponent
+
   alias Alternis.GameSettings
   alias Alternis.Landing
 

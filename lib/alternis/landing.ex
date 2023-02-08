@@ -65,7 +65,7 @@ defmodule Alternis.Landing do
   end
 
   defp language_of(secret, language) do
-    case DictionaryEngine.impl().find_word(secret, language) do
+    case DictionaryEngine.impl().find_word(language, secret) do
       nil -> nil
       word -> word.language
     end

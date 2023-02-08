@@ -8,35 +8,31 @@ defmodule Alternis.Engines.DictionaryEngine.Impl do
   alias Alternis.Repo
   alias Alternis.Word
 
-  @spec find_word(String.t(), GameLanguage.t()) :: Word.t() | nil
-  def find_word(lemma, language) do
-    from(
-      w in Word,
-      join: d in Dictionary,
-      on: d.id == w.dictionary_id,
-      where:
-        d.language == ^language and
-          w.lemma == ^String.downcase(lemma),
-      select_merge: %{language: d.language},
-      order_by: w.frequency,
-      limit: 1
-    )
-    |> Repo.one()
+  def find_word(language, opts \\ %{min: 4, max: 9})
+
+  @spec find_word(GameLanguage.t(), map) :: Word.t() | nil
+  def find_word(language, %{min: min, max: max}) do
+    condition =
+      dynamic(fragment("LENGTH(lemma) > ?", ^min) and fragment("LENGTH(lemma) < ?", ^max))
+
+    conditionally_find_word(language, condition)
   end
 
-  @spec secret(GameLanguage.t(), map) :: String.t() | nil
-  def secret(language, opts \\ %{min: 4, max: 9}) do
-    import Ecto.Query
+  @spec find_word(GameLanguage.t(), String.t()) :: Word.t() | nil
+  def find_word(language, word) when not is_nil(word) do
+    condition = dynamic([w], w.lemma == ^String.downcase(word))
+    conditionally_find_word(language, condition)
+  end
 
+  defp conditionally_find_word(language, condition) do
     Repo.one(
       from w in Word,
         join: d in Dictionary,
         on: d.id == w.dictionary_id,
-        where:
-          d.language == ^language and
-            fragment("LENGTH(lemma) > ?", ^opts.min) and fragment("LENGTH(lemma) < ?", ^opts.max),
-        select: w.lemma,
-        order_by: fragment("RANDOM()"),
+        where: ^condition,
+        where: d.language == ^language,
+        select_merge: %{language: d.language},
+        order_by: w.frequency,
         limit: 1
     )
   end

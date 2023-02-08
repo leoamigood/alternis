@@ -13,12 +13,13 @@ defmodule Alternis.Engines.GameEngine.Impl do
   alias Alternis.GameSettings
   alias Alternis.Guess
   alias Alternis.Repo
+  alias Alternis.Word
 
   @spec create(User.t(), GameSettings.t()) :: {:ok, Game.id()} | {:error, map}
   def create(user, settings = %GameSettings{secret: nil}) do
-    case DictionaryEngine.impl().secret(settings.language) do
-      nil -> {:error, %{reason: :secret_not_found, settings: settings}}
-      secret -> create(user, %{settings | secret: secret})
+    case DictionaryEngine.impl().find_word(settings.language) do
+      nil -> {:error, %{reason: :word_not_found, settings: settings}}
+      %Word{lemma: word} -> create(user, %{settings | secret: word})
     end
   end
 

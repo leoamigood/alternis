@@ -1,6 +1,8 @@
 defmodule AlternisWeb.GameLive.Show do
   use AlternisWeb, :live_view
 
+  import AlternisWeb.GameLive.GameComponent
+
   alias Alternis.Landing
   alias Alternis.Game.GameState.{Expired, Finished}
 

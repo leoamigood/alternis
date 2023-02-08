@@ -1,8 +1,10 @@
-<%= if @game.in_progress? do %>
-  <h2>Active Players:</h2>
-
-  <AlternisWeb.GameLive.PlayersComponent.render players={@players} />
-<% end %>
+<.players players={@players}>
+  <:header>
+    <%= if @game.in_progress? do %>
+      <h2>Active Players:</h2>
+    <% end %>
+  </:header>
+</.players>
 
 <h1>Game History</h1>
 
@@ -20,11 +22,20 @@
 <% end %>
 
 <ul>
-  <AlternisWeb.GameLive.GameComponent.render game={@game} guesses={@guesses} />
-
-  <%= if @game.in_progress? do %>
-      <span><.link patch={~p"/games/#{@game}/guess"}>Place a guess</.link></span>
-  <% end %>
+  <.timeline guesses={@guesses}>
+    <:header>
+        <strong>Language:</strong>
+        <%= Recase.to_pascal(@game.language.value) %>
+        <br/>
+        <strong>Secret:</strong>
+        <%= String.pad_leading("", String.length(@game.secret), "*") %>
+    </:header>
+    <:footer>
+      <%= if @game.in_progress? do %>
+          <span><.link patch={~p"/games/#{@game}/guess"}>Place a guess</.link></span>
+      <% end %>
+    </:footer>
+  </.timeline>
 </ul>
 
 <span><%= live_redirect "Back", id: "Back", to: ~p"/games" %></span>

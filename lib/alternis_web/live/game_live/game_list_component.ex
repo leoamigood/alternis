@@ -3,19 +3,13 @@ defmodule AlternisWeb.GameLive.GameListComponent do
   use AlternisWeb, :verified_routes
 
   attr :games, :list, default: []
+  slot :header
 
-  def render(assigns) do
+  def board(assigns) do
     ~H"""
     <table>
       <%= unless @games == [] do %>
-        <thead>
-          <tr>
-            <th>Language</th>
-            <th>Secret</th>
-
-            <th></th>
-          </tr>
-        </thead>
+        <%= render_slot(@header) %>
       <% end %>
       <tbody id="games">
         <%= for game <- @games do %>

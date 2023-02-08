@@ -32,7 +32,7 @@ defmodule Alternis.GameSettings do
 
   def validate_in_dictionary(changeset, field) when is_atom(field) do
     validate_change(changeset, field, fn field, secret ->
-      case DictionaryEngine.impl().find_word(secret, changeset.changes.language) do
+      case DictionaryEngine.impl().find_word(changeset.changes.language, secret) do
         nil -> [{field, "word not in dictionary"}]
         _ -> []
       end
