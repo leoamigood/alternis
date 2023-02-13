@@ -31,6 +31,10 @@ defmodule Alternis.Guess do
     |> validate_required([:word, :bulls, :cows, :exact?])
   end
 
+  def priority(guess) do
+    length(guess.bulls) * 10 + length(guess.cows)
+  end
+
   def validate_word(attrs \\ %{}) do
     %Guess{}
     |> cast(attrs, [:word])

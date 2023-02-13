@@ -5,6 +5,7 @@ defmodule AlternisWeb.GameLive.Show do
 
   alias Alternis.Landing
   alias Alternis.Game.GameState.{Expired, Finished}
+  alias Alternis.Guess
 
   @game_ended_event "game_ended"
   @guess_placed_event "guess_placed"
@@ -25,6 +26,7 @@ defmodule AlternisWeb.GameLive.Show do
         {:ok,
          socket
          |> assign(:game, game)
+         |> assign(:update, "append")
          |> assign(:current_user, user)
          |> assign(:players, online_players(game.id))
          |> assign(:guesses, game.guesses), temporary_assigns: [guesses: []]}
@@ -33,7 +35,10 @@ defmodule AlternisWeb.GameLive.Show do
 
   @impl true
   def handle_info(%{event: @guess_placed_event, payload: %{guess: guess}}, socket) do
-    {:noreply, assign(socket, :guesses, [guess])}
+    {:noreply,
+     socket
+     |> assign(:update, "append")
+     |> assign(:guesses, [guess])}
   end
 
   def handle_info(%{event: @game_ended_event}, socket) do
@@ -42,6 +47,22 @@ defmodule AlternisWeb.GameLive.Show do
 
   def handle_info({action, game_id, %{user: _email}}, socket) when action in [:join, :leave] do
     {:noreply, socket |> assign(:players, online_players(game_id))}
+  end
+
+  @impl true
+  def handle_event("order_top", %{"game_id" => game_id}, socket) do
+    case Landing.get_game!(game_id) do
+      nil ->
+        raise AlternisWeb.GameLive.GameNotFoundError
+
+      game ->
+        sorted = Enum.sort(game.guesses, &(Guess.priority(&1) > Guess.priority(&2)))
+
+        {:noreply,
+         socket
+         |> assign(:update, "replace")
+         |> assign(:guesses, sorted)}
+    end
   end
 
   @impl true

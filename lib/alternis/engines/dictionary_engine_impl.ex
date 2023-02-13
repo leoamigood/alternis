@@ -32,7 +32,7 @@ defmodule Alternis.Engines.DictionaryEngine.Impl do
         where: ^condition,
         where: d.language == ^language,
         select_merge: %{language: d.language},
-        order_by: w.frequency,
+        order_by: fragment("RANDOM()"),
         limit: 1
     )
   end

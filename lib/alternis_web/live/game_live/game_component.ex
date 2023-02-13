@@ -2,6 +2,7 @@ defmodule AlternisWeb.GameLive.GameComponent do
   use Phoenix.Component
 
   attr :guesses, :list, required: true
+  attr :update, :string, default: "append"
   slot :header
   slot :footer
 
@@ -9,7 +10,7 @@ defmodule AlternisWeb.GameLive.GameComponent do
     ~H"""
     <div>
       <%= render_slot(@header) %>
-      <ul id="game-guesses" phx-update="append">
+      <ul id="game-guesses" phx-update={@update}>
         <%= for guess <- @guesses do %>
           <li id={guess.id} style={if guess.exact?, do: "color:green"}>
             <%= guess.user.username %>: <%= guess.word %> - bulls: <%= length(guess.bulls) %>, cows: <%= length(
