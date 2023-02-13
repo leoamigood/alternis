@@ -22,13 +22,15 @@
 <% end %>
 
 <ul>
-  <.timeline guesses={@guesses}>
+  <.timeline guesses={@guesses} update={@update}>
     <:header>
         <strong>Language:</strong>
         <%= Recase.to_pascal(@game.language.value) %>
         <br/>
         <strong>Secret:</strong>
         <%= String.pad_leading("", String.length(@game.secret), "*") %>
+        <br/>
+        <button phx-click="order_top" phx-value-game_id={@game.id}>Top</button>
     </:header>
     <:footer>
       <%= if @game.in_progress? do %>
