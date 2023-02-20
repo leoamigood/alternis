@@ -66,16 +66,19 @@ defmodule AlternisWeb.GameLive.Show do
   end
 
   @impl true
-  def handle_params(_params, _session, socket = %{assigns: %{game: game}}) do
+  def handle_params(_params, _url, socket = %{assigns: %{live_action: :guess, game: game}}) do
+    case game.in_progress? do
+      true -> {:noreply, socket}
+      false -> {:noreply, socket |> push_redirect(to: ~p"/games/#{game}")}
+    end
+  end
+
+  @impl true
+  def handle_params(_params, _url, socket = %{assigns: %{game: game}}) do
     case game.state do
-      Finished ->
-        {:noreply, socket |> put_flash(:error, "Game has ended!")}
-
-      Expired ->
-        {:noreply, socket |> put_flash(:error, "Game has expired!")}
-
-      _ ->
-        {:noreply, socket}
+      Finished -> {:noreply, socket |> put_flash(:error, "Game has ended!")}
+      Expired -> {:noreply, socket |> put_flash(:error, "Game has expired!")}
+      _ -> {:noreply, socket}
     end
   end
 
