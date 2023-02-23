@@ -2,6 +2,8 @@ defmodule AlternisWeb.GameLive.Show do
   use AlternisWeb, :live_view
 
   import AlternisWeb.GameLive.GameComponent
+  import AlternisWeb.GameLive.SecretComponent
+  import AlternisWeb.NotifyHelpers
 
   alias Alternis.Landing
   alias Alternis.Game.GameState.{Expired, Finished}
@@ -62,6 +64,23 @@ defmodule AlternisWeb.GameLive.Show do
          socket
          |> assign(:update, "replace")
          |> assign(:guesses, sorted)}
+    end
+  end
+
+  @impl true
+  def handle_event("abort", %{"game_id" => game_id}, socket) do
+    case Landing.get_game!(game_id) do
+      nil ->
+        raise AlternisWeb.GameLive.GameNotFoundError
+
+      game ->
+        Landing.abort_game(game)
+        notify_game_ended(game)
+
+        {:noreply,
+         socket
+         |> assign(:game, Landing.get_game!(game_id))
+         |> put_flash(:error, "Game has been aborted!")}
     end
   end
 

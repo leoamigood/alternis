@@ -28,7 +28,7 @@ defmodule AlternisWeb.GameLive.Index do
 
   defp apply_action(socket = %{assigns: %{current_user: user}}, :new, _params) do
     socket
-    |> assign(:button, "Auto Generate")
+    |> assign(:button, "Generate")
     |> assign(:user, user)
     |> assign(:game_settings, %GameSettings{})
   end

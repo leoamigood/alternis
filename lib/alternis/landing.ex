@@ -24,6 +24,10 @@ defmodule Alternis.Landing do
     GameEngine.impl().guess(user, game.id, word)
   end
 
+  def abort_game(game) do
+    GameEngine.impl().abort(game.id)
+  end
+
   def create_game(user, settings = %{"secret" => ""}) do
     %GameSettings{}
     |> GameSettings.changeset(settings)
