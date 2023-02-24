@@ -5,7 +5,7 @@ defmodule AlternisWeb.GameLive.SecretComponent do
 
   def secret(assigns) do
     ~H"""
-    <div>
+    <div style={unless @game.in_progress?, do: "color:red"}>
       <strong>Secret:</strong>
       <%= if @game.in_progress? do %>
         <%= String.pad_leading("", String.length(@game.secret), "*") %>
