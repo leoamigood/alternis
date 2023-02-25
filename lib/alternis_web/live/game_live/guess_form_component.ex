@@ -1,11 +1,10 @@
 defmodule AlternisWeb.GameLive.GuessFormComponent do
   use AlternisWeb, :live_component
 
-  import AlternisWeb.Endpoint
+  import AlternisWeb.NotifyHelpers
 
   alias Alternis.Guess
   alias Alternis.Landing
-  alias AlternisWeb.GameLive.Show
 
   @impl true
   def update(_assigns, socket = %{assigns: %{changeset: _changeset}}) do
@@ -59,13 +58,5 @@ defmodule AlternisWeb.GameLive.GuessFormComponent do
         notify_game_ended(socket.assigns.game)
         {:noreply, socket}
     end
-  end
-
-  defp notify_guess_placed(guess) do
-    broadcast!(guess.game_id, Show.guess_placed_event(), %{topic: guess.game_id, guess: guess})
-  end
-
-  defp notify_game_ended(game) do
-    broadcast_from!(self(), game.id, Show.game_ended_event(), %{topic: game.id})
   end
 end

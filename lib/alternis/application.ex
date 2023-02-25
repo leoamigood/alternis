@@ -5,12 +5,8 @@ defmodule Alternis.Application do
 
   use Application
 
-  alias Appsignal.Phoenix.LiveView
-
   @impl true
   def start(_type, _args) do
-    LiveView.attach()
-
     children = [
       # Start the Ecto repository
       Alternis.Repo,
