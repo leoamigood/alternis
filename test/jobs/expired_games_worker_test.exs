@@ -8,7 +8,7 @@ defmodule Alternis.ExpiredGamesWorkerTest do
 
   alias Alternis.Game
   alias Alternis.Game.GameState.{Aborted, Created, Expired, Finished, Running}
-  alias AlternisWeb.GameLive.Index
+  alias Alternis.Topics
 
   test "returns total amount of expired games" do
     insert(:game, state: Created, expires_at: ago(60, :second))
@@ -29,10 +29,10 @@ defmodule Alternis.ExpiredGamesWorkerTest do
 
   describe "with games list subscription" do
     setup do
-      AlternisWeb.Endpoint.subscribe(Index.topic())
-      on_exit(fn -> AlternisWeb.Endpoint.unsubscribe(Index.topic()) end)
+      AlternisWeb.Endpoint.subscribe(Topics.players())
+      on_exit(fn -> AlternisWeb.Endpoint.unsubscribe(Topics.players()) end)
 
-      {:ok, %{topic: Index.topic()}}
+      {:ok, %{topic: Topics.players()}}
     end
 
     test "succeeds to notify game players" do

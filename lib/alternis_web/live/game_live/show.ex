@@ -5,15 +5,13 @@ defmodule AlternisWeb.GameLive.Show do
   import AlternisWeb.GameLive.SecretComponent
   import AlternisWeb.NotifyHelpers
 
+  alias Alternis.Events
   alias Alternis.Landing
   alias Alternis.Game.GameState.{Expired, Finished}
   alias Alternis.Guess
 
-  @game_ended_event "game_ended"
-  @guess_placed_event "guess_placed"
-
-  def game_ended_event, do: @game_ended_event
-  def guess_placed_event, do: @guess_placed_event
+  @game_ended_event Events.game_ended_event()
+  @guess_placed_event Events.guess_placed_event()
 
   @impl true
   def mount(%{"id" => game_id}, _session, socket = %{assigns: %{current_user: user}}) do

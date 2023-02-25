@@ -5,14 +5,13 @@ defmodule AlternisWeb.GameLive.Index do
 
   alias Alternis.GameSettings
   alias Alternis.Landing
+  alias Alternis.Topics
 
-  @topic "players"
-
-  def topic, do: @topic
+  @topic Topics.players()
 
   @impl true
   def mount(_params, _session, socket) do
-    AlternisWeb.Endpoint.subscribe(@topic)
+    AlternisWeb.Endpoint.subscribe(Topics.players())
     {:ok, assign(socket, :games, list_games())}
   end
 

@@ -1,11 +1,10 @@
 defmodule AlternisWeb.GameLive.GameFormComponent do
   use AlternisWeb, :live_component
 
-  import AlternisWeb.Endpoint
+  import AlternisWeb.NotifyHelpers
 
   alias Alternis.GameSettings
   alias Alternis.Landing
-  alias AlternisWeb.GameLive
   alias Phoenix.LiveView.JS
 
   @generate_button "Generate"
@@ -50,7 +49,7 @@ defmodule AlternisWeb.GameLive.GameFormComponent do
   def handle_event("save", %{"game_settings" => game_settings_params}, socket) do
     case Landing.create_game(socket.assigns.player, game_settings_params) do
       {:ok, game_id} ->
-        broadcast!(GameLive.Index.topic(), "save_game", [])
+        notify_game_created()
 
         {:noreply,
          socket

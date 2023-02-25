@@ -8,11 +8,12 @@ defmodule Alternis.ExpiredGamesWorker do
 
   import Ecto.Query
 
+  alias Alternis.Events
   alias Alternis.Game
   alias Alternis.Game.GameState.{Created, Expired, Running}
   alias Alternis.PubSub
   alias Alternis.Repo
-  alias AlternisWeb.GameLive.{Index, Show}
+  alias Alternis.Topics
 
   require Logger
 
@@ -44,11 +45,14 @@ defmodule Alternis.ExpiredGamesWorker do
   defp notify_players(games) do
     games
     |> Enum.each(fn game ->
-      Phoenix.PubSub.broadcast(PubSub, game.id, %{topic: game.id, event: Show.game_ended_event()})
+      Phoenix.PubSub.broadcast(PubSub, game.id, %{
+        topic: game.id,
+        event: Events.game_ended_event()
+      })
     end)
   end
 
   defp refresh_running_games do
-    Phoenix.PubSub.broadcast(PubSub, Index.topic(), %{topic: Index.topic()})
+    Phoenix.PubSub.broadcast(PubSub, Topics.players(), %{topic: Topics.players()})
   end
 end
