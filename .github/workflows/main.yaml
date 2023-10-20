@@ -118,6 +118,16 @@ jobs:
     # Step: Execute the tests.
     - name: Run tests
       run: mix test
+
+    - name: Upload Test Results to BuildPulse for Flaky Test Detection
+      if: '!cancelled()' # Run this step even when the tests fail. Skip if the workflow is cancelled.
+      uses: Workshop64/buildpulse-action@master
+      with:
+        account: 1671508 # Replace this value with your BuildPulse account ID
+        repository: 585572389 # Replace this value with your BuildPulse repository ID
+        path: tmp/
+        key: ${{ secrets.BUILDPULSE_ACCESS_KEY_ID }}
+        secret: ${{ secrets.BUILDPULSE_SECRET_ACCESS_KEY }}
   deploy:
       name: Deploy app
       needs: [dialyzer, test]
